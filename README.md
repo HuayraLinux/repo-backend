@@ -3,18 +3,20 @@ repo-backend
 
 Para obtener los datos de reprepro todo se ejecuta desde $REPREPRO_BASE_DIR
 
-= Listado de distros:
-
+## Listado de distros 
+<pre>
 $REPREPRO_BASE_DIR/conf/distributions
-
+</pre>
 Se puede parsear el archivo con algo tipo ConfigParser de python, para tenes toda la info de cada distro
 o solo tener los nombre con:
 
 cmd:
+<pre>
 grep Codename $REPREPRO_BASE_DIR/conf/distributions
-
+</pre>
 output:
-Codename: brisa
+<pre>
+Codename: brias
 Codename: brisa-updates
 Codename: brisa-proposed
 Codename: pampero-proposed
@@ -37,15 +39,18 @@ Codename: zonda-updates
 Codename: experimental
 Codename: 3.1
 Codename: 3.2
-
-= Listado de paquets por distro
+</pre>
+## Listado de paquetes por distro
 
 reprepro list <nombre-distro>
 
 cmd:
+<pre>
 reprepro list torbellino 
+</pre>
 
 output:
+<pre>
 torbellino|main|i386: touchegg 1.1.1-2
 torbellino|main|i386: touchegg-gui 1.1.1-2
 torbellino|main|i386: turtleart 170-1huayra1
@@ -65,15 +70,19 @@ torbellino|main|amd64: ayni 0.3-huayra1
 torbellino|main|amd64: babiloo-dicts-spanish 1.0-2
 torbellino|main|amd64: base-files 8.5~huayra2
 torbellino|main|amd64: bluebird-gtk-theme 1.9.4-0huayra1
+</pre>
 
-= Datos de un paque en tods las distros
+## Datos de un paquete en todas las distros
 
 reprepro ls <nombre-paquete>
 
 cmd:
+<pre>
 reprepro ls huayra-desktop
+</pre>
 
 output:
+<pre>
 huayra-desktop | 2.74 |            brisa | source
 huayra-desktop | 2.96.2 |    brisa-updates | source
 huayra-desktop | 2.96.2 |   brisa-proposed | source
@@ -92,7 +101,7 @@ huayra-desktop | 3.2.37 |     sud-proposed | source
 huayra-desktop | 4.0.8 |            zonda | source
 huayra-desktop | 3.2.25 |              3.1 | source
 huayra-desktop | 3.2.37 |              3.2 | source
-
+</pre>
 
 
 
