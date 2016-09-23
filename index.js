@@ -4,38 +4,49 @@ var utils = require('./utils');
 var exec = require('child_process').exec;
 
 /* Constants */
-var API_PORT = 80;
+var API_PORT = 8080;
 var reprepro = {
-	package_versions: '',
-	package_info: '',
-	distro_packages: '',
-	distro_list: ''
+	package_info: 'echo "<package>"',
+	package_versions: 'sleep 10 && echo "<distro>"" && echo "<package>"',
+	distro_list: 'ls',
+	distro_packages: 'echo "<distro>"'
 };
 
 /* Variables */
 var app = express();
 
-app.get('/packages/:package', function (req, res) {
-	exec(reprepro.package_info, function(error, stdout, stderr) {
+function sanitize_input(req) {
+	function strip_quotation(str) {
+		str.replace(/"/g, '');
+	}
+	return utils.object_map(req, strip_quotation);
+}
 
+app.get('/packages/:package', function (req, res) {
+	var cmdline = utils.format_map(reprepro.package_info, req.params);
+	exec(cmdline, function(error, stdout, stderr) {
+		res.send(stdout);
 	});
 });
 
-app.get('/packages/:distro/:packageName', function (req, res) {
-	exec(reprepro.package_versions, function(error, stdout, stderr) {
-
+app.get('/packages/:distro/:package', function (req, res) {
+	var cmdline = utils.format_map(reprepro.package_versions, req.params);
+	exec(cmdline, function(error, stdout, stderr) {
+		res.send(cmdline);
 	});
 });
 
 app.get('/distributions', function (req, res) {
-	exec(reprepro.distro_list, function(error, stdout, stderr) {
-
+	var cmdline = reprepro.distro_list;
+	exec(cmdline, function(error, stdout, stderr) {
+		res.send(stdout);
 	});
 });
 
 app.get('/distributions/:distro/packages', function (req, res) {
-	exec(reprepro.distro_packages, function(error, stdout, stderr) {
-
+	var cmdline = utils.format_map(reprepro.distro_packages, req.params);
+	exec(cmdline, function(error, stdout, stderr) {
+		res.send(cmdline);
 	});
 });
 
