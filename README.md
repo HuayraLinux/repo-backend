@@ -42,7 +42,7 @@ Codename: 3.2
 </pre>
 ## Listado de paquetes por distro
 
-reprepro list <nombre-distro>
+reprepro list <distro>
 
 cmd:
 <pre>
@@ -74,7 +74,7 @@ torbellino|main|amd64: bluebird-gtk-theme 1.9.4-0huayra1
 
 ## Datos de un paquete en todas las distros
 
-reprepro ls <nombre-paquete>
+reprepro ls <package>
 
 cmd:
 <pre>

@@ -28,3 +28,12 @@ module.exports.object_map = function object_map(obj, f) {
 	}
 	return rval;
 }
+
+module.exports.regex_fold = function regex_fold(regex, string, f, initial_value) {
+	var match;
+	var accumulator = initial_value;
+	while(match = regex.exec(string)) {
+		accumulator = f(match, accumulator);
+	}
+	return accumulator;
+}
