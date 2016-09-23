@@ -7,7 +7,7 @@ var exec = require('child_process').exec;
 var API_PORT = 8080;
 var reprepro = {
 	package_info: 'echo "<package>"',
-	package_versions: 'sleep 10 && echo "<distro>"" && echo "<package>"',
+	package_versions: 'sleep 10 && echo "<distro>" && echo "<package>"',
 	distro_list: 'ls',
 	distro_packages: 'echo "<distro>"'
 };
@@ -16,10 +16,10 @@ var reprepro = {
 var app = express();
 
 function sanitize_input(req) {
-	function strip_quotation(str) {
-		str.replace(/"/g, '');
+	function strip_illegal_chars(str) {
+		str.replace(/[^a-z0-9-+.]/g, '');
 	}
-	return utils.object_map(req, strip_quotation);
+	return utils.object_map(req, strip_illegal_chars);
 }
 
 app.get('/packages/:package', function (req, res) {
