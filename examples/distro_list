@@ -1,0 +1,260 @@
+Origin: Huayra
+Label: huayra-brisa
+Codename: brisa
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio Antiguo Estable de Huayra
+#AlsoAcceptFor: stable brisa
+Log: brisa.log
+SignWith: yes
+
+Origin: Huayra
+Label: huayra-brisa-updates
+Codename: brisa-updates
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio Antiguo Estable de Huayra (updates)
+#AlsoAcceptFor: stable
+#Pull: from_brisa_proposed
+Log: brisa-updates.log
+SignWith: yes
+
+Origin: Huayra
+Label: huayra-brisa-proposed
+Codename: brisa-proposed
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio Antiguo Estable de Huayra (proposed)
+#AlsoAcceptFor: pampero torbellino stable testing
+Log: brisa-proposed.log
+SignWith: yes
+
+Origin: Huayra
+Label: huayra-pampero-proposed
+Codename: pampero-proposed
+Suite: oldstable-proposed
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio Estable de Huayra (proposed)
+AlsoAcceptFor: huayra-pampero-proposed
+Log: pampero-proposed.log
+SignWith: yes
+
+Origin: Huayra
+Label: huayra-pampero
+Codename: pampero
+Suite: oldstable
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio de Estable de Huayra
+#AlsoAcceptFor: testing
+Log: pampero.log
+SignWith: yes
+
+Origin: Huayra
+Label: huayra-pampero-updates
+Codename: pampero-updates
+Suite: oldstable-updates
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio de Estable de Huayra (updates)
+Log: pampero-updates.log
+SignWith: yes
+Pull: from_pampero_proposed
+
+Origin: Huayra
+Label: huayra-torbellino
+Codename: torbellino
+Suite: unstable
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio EN desarrollo de Huayra
+#AlsoAcceptFor: UNRELEASED
+Log: torbellino.log
+ --type=dsc gen_changelogs
+SignWith: yes
+DebOverride: deb-override
+
+Origin: Huayra
+Label: 1.1
+Codename: 1.1
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Version 1.1
+SignWith: yes
+Log: 1.1.log
+
+Origin: Huayra
+Label: 2.0
+Codename: 2.0
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Version 2.0
+SignWith: yes
+Log: 2.0.log
+
+Origin: Huayra
+Label: 2.1
+Codename: 2.1
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Version 2.1
+SignWith: yes
+Log: 2.1.log
+#Pull: from_pampero_updates
+
+Origin: Huayra
+Label: 2.2
+Codename: 2.2
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Version 2.2
+SignWith: yes
+Log: 2.2.log
+#Pull: from_pampero_updates
+
+Origin: Huayra
+Label: 3.0
+Codename: 3.0
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Version 3.0
+SignWith: yes
+Log: 3.0.log
+Pull: from_sud
+
+Origin: Mate
+Codename: mate-brisa
+Description: Mirror de mate para brisa
+Architectures: i386 amd64 source
+Components: main
+UDebComponents: main
+SignWith: yes
+
+Origin: Mate
+Codename: mate-pampero
+Description: Mirror de mate para pampero
+Architectures: i386 amd64 source
+Components: main
+UDebComponents: main
+Update: - mate-repo
+SignWith: yes
+
+Origin: Mate
+Codename: mate-torbellino
+Description: Mirror de mate para torbellino
+Architectures: i386 amd64 source
+Components: main
+UDebComponents: main
+Update: - mate-repo
+SignWith: yes
+
+Origin: Huayra
+Label: huayra-sud
+Codename: sud
+Suite: stable
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio de Pruebas de Huayra
+#AlsoAcceptFor: testing
+#Pull: from_torbellino
+Log: sud.log
+SignWith: yes
+
+Origin: Huayra
+Label: huayra-sud-updates
+Codename: sud-updates
+Suite: stable-updates
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio de Pruebas de Huayra (updates)
+#AlsoAcceptFor: testing
+Log: sud-updates.log
+SignWith: yes
+Pull: from_sud_proposed
+
+Origin: Huayra
+Label: huayra-sud-proposed
+Codename: sud-proposed
+Suite: stable-proposed
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio de Estable de Huayra (proposed)
+Log: sud-proposed.log
+SignWith: yes
+Pull: from_torbellino
+
+Origin: Huayra
+Label: huayra-zonda
+Codename: zonda
+Suite: testing
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio de Pruebas de Huayra
+#AlsoAcceptFor: testing
+Pull: from_torbellino
+Log: zonda.log
+SignWith: yes
+
+Origin: Huayra
+Label: huayra-zonda-updates
+Codename: zonda-updates
+Suite: testing-updates
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio de Pruebas de Huayra (updates)
+#AlsoAcceptFor: testing
+Log: zonda-updates.log
+SignWith: yes
+
+Origin: Huayra
+Label: experimental
+Codename: experimental
+Suite: experimental
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Repositorio Experimental de Huayra (sin garantia)
+AlsoAcceptFor: testing unstable
+Log: experimental.log
+ --type=dsc gen_changelogs
+SignWith: yes
+
+Origin: Huayra
+Label: 3.1
+Codename: 3.1
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Version 3.1
+SignWith: yes
+Log: 3.1.log
+Pull: from_sud_updates
+
+Origin: Huayra
+Label: 3.2
+Codename: 3.2
+Architectures: i386 amd64 source
+Components: main contrib non-free
+UDebComponents: main
+Description: Version 3.2
+SignWith: yes
+Log: 3.2.log
+Pull: from_sud_updates

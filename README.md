@@ -16,7 +16,7 @@ grep Codename $REPREPRO_BASE_DIR/conf/distributions
 </pre>
 output:
 <pre>
-Codename: brias
+Codename: brisa
 Codename: brisa-updates
 Codename: brisa-proposed
 Codename: pampero-proposed

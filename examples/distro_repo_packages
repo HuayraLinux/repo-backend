@@ -1,0 +1,233 @@
+Package: firmware-siano-rio
+Version: 1.0
+Architecture: all
+Maintainer: Miguel Angel Garcia <miguel.garcia@gmail.com>
+Installed-Size: 122
+Priority: optional
+Section: non-free/kernel
+Filename: pool/non-free/f/firmware-siano-rio/firmware-siano-rio_1.0_all.deb
+Size: 56180
+SHA256: 73e641920c7e2b92663cc9b65addabbb408ca2a8e56c191e4f29ec6dc6327798
+SHA1: fef1fc796726402dbabb507fe336baf100a94848
+MD5sum: ae91159383ff7de0b52ff91550044308
+Description: Firmware for Siano MDTV Rio tuner
+ This packages contains only the firmware not the kernel module, see
+ siano-mdtv-dkms
+
+Package: huayra-tpm
+Version: 2.0.0.116-7
+Architecture: i386
+Maintainer: Miguel Angel Garcia <miguel.garcia@gmail.com>
+Installed-Size: 8985
+Depends: libnotify4, libssl1.0.0, libatk1.0-0, libpango1.0-0, libgtk2.0-0
+Conflicts: libtdagent, tdagent
+Priority: extra
+Section: non-free/utils
+Filename: pool/non-free/h/huayra-tpm/huayra-tpm_2.0.0.116-7_i386.deb
+Size: 2733664
+SHA256: 0e74c1fbec317bcea07a9584d22446fa44c77b78ff17e57a87adc1ae4d685d60
+SHA1: 3b2f7b4071cc9f122b2fba9e21e6a8b87fafec09
+MD5sum: 10dda04bf266a2e4688953e43f069c87
+Description: Libraries and Agent of Theft Deterrent
+
+Package: intel-pvr-driver
+Version: 1.0~rc1-1
+Architecture: i386
+Maintainer: Mikko Rasa <mikko.rasa@movial.com>
+Installed-Size: 7548
+Pre-Depends: multiarch-support
+Depends: libc6 (>= 2.4), libdrm2 (>= 2.4.16), libexpat1 (>= 1.95.8), libgcc1 (>= 1:4.1.1), libgl1-mesa-glx | libgl1, libstdc++6 (>= 4.1.1), libudev0 (>= 147), libva-x11-1 (>> 1.0.12~), libwsbm1, libx11-6, libxext6, libxfixes3, libxrandr2 (>= 2:1.2.0), libxv1
+Priority: extra
+Section: non-free/x11
+Filename: pool/non-free/i/intel-pvr-driver/intel-pvr-driver_1.0~rc1-1_i386.deb
+Size: 2587564
+SHA256: 823a5ed0c63424f7d5c90a39b447340612821cfaf8e7b27147249a811c3f6ac5
+SHA1: 6512abc36453187298be9cc5157b198e24bcd70e
+MD5sum: 1775a630895191d4fba6e68615c490d3
+Description: Graphics driver for the Intel CedarView platform
+ <insert long description, indented with spaces>
+
+Package: intel-pvr-driver-dbg
+Source: intel-pvr-driver
+Version: 1.0~rc1-1
+Architecture: i386
+Maintainer: Mikko Rasa <mikko.rasa@movial.com>
+Installed-Size: 27416
+Priority: extra
+Section: non-free/x11
+Filename: pool/non-free/i/intel-pvr-driver/intel-pvr-driver-dbg_1.0~rc1-1_i386.deb
+Size: 13044946
+SHA256: d47638fe0d25428d3faefe5067aef8e0d650a707544e751b33d0455d9da64484
+SHA1: b68940c0ca4ccb4666f5c77460719cf0ccbf2191
+MD5sum: 8458b1aa2e9eec1a60139de4b3a86246
+Description: Debugging symbols for the Intel CedarView graphics driver
+ <insert long description, indented with spaces>
+
+Package: intel-pvr-kernel-dkms
+Source: intel-pvr-support
+Version: 1.0.3-3
+Architecture: i386
+Maintainer: Miguel Angel Garcia <miguel.garcia@gmail.com>
+Installed-Size: 6782
+Depends: dkms (>= 1.95)
+Priority: optional
+Section: non-free/kernel
+Filename: pool/non-free/i/intel-pvr-support/intel-pvr-kernel-dkms_1.0.3-3_i386.deb
+Size: 1180650
+SHA256: b4220be185807be4e8e7c55dc6bac04f0511b75fdef7fb10e182f02a91edc12d
+SHA1: 030a12c080c144188c2545549ea28f18e9cad11d
+MD5sum: dd99c2acf46b4c8ec97ee57a04dcbb71
+Description: Codigo fuente del driver PVR para dkms
+  Codigo fuente del driver PVR para dkms en Huayra
+
+Package: intel-pvr-support
+Version: 1.0.3-3
+Architecture: i386
+Maintainer: Miguel Angel Garcia <miguel.garcia@gmail.com>
+Installed-Size: 9
+Depends: intel-pvr-driver, intel-pvr-driver-dbg, intel-pvr-kernel-dkms, libegl-pvr, libgles-pvr, libgl-pvr, libglsl-pvr, libopenvg-pvr, libwsbm, libwsbm1, libwsbm-dev, linux-headers-686-pae
+Priority: optional
+Section: non-free/kernel
+Filename: pool/non-free/i/intel-pvr-support/intel-pvr-support_1.0.3-3_i386.deb
+Size: 980
+SHA256: fd1c9ac62335ab32d65c1c602bd4925d9641d56a99a9151ffae22f372e03ecd1
+SHA1: d43ce2113e890e65e7c51e063e68f724d5e4f1a0
+MD5sum: 18e70111c9edf2f4395bf04f0e417c87
+Description: Driver y archivos de configuración para placas Intel PowerVR.
+  Modulos del kernel y configuración de xorg para placas gráficas Intel PowerVR
+
+Package: libegl-pvr
+Source: intel-pvr-driver
+Version: 1.0~rc1-1
+Architecture: i386
+Maintainer: Mikko Rasa <mikko.rasa@movial.com>
+Installed-Size: 116
+Pre-Depends: multiarch-support
+Depends: libc6 (>= 2.3.6-6~), intel-pvr-driver
+Conflicts: libegl1-mesa
+Priority: extra
+Section: non-free/x11
+Filename: pool/non-free/i/intel-pvr-driver/libegl-pvr_1.0~rc1-1_i386.deb
+Size: 40718
+SHA256: 3734f72d59f04aa3b1c8508e0b818d9fc785ddc47d4e569f975e245dcf928696
+SHA1: 1c6c6a414d3d1fb89d6e13d7756f8322aa07c711
+MD5sum: 019c7bc341b47b65a7aa7362afed83d5
+Description: EGL libraries for the Intel CedarView platform
+ <insert long description, indented with spaces>
+
+Package: libgl-pvr
+Source: intel-pvr-driver
+Version: 1.0~rc1-1
+Architecture: i386
+Maintainer: Mikko Rasa <mikko.rasa@movial.com>
+Installed-Size: 2096
+Pre-Depends: multiarch-support
+Depends: libc6 (>= 2.3.6-6~), libdrm2 (>= 2.3.1), libegl-pvr
+Conflicts: libgl1-mesa
+Priority: extra
+Section: non-free/x11
+Filename: pool/non-free/i/intel-pvr-driver/libgl-pvr_1.0~rc1-1_i386.deb
+Size: 818084
+SHA256: 86775733fbb4c880e032456e09c73c362e4c03575031e28e8261dc2265e9acd9
+SHA1: 9d799b1273b1386af0b79b22d6f3bc886569e349
+MD5sum: 1566f32a4a155a0b527f3bf6ad21c17c
+Description: OpenGL libraries for the Intel CedarView platform
+ <insert long description, indented with spaces>
+
+Package: libgles-pvr
+Source: intel-pvr-driver
+Version: 1.0~rc1-1
+Architecture: i386
+Maintainer: Mikko Rasa <mikko.rasa@movial.com>
+Installed-Size: 1052
+Pre-Depends: multiarch-support
+Depends: libc6 (>= 2.3.6-6~), libegl-pvr
+Conflicts: libgles2-mesa
+Priority: extra
+Section: non-free/x11
+Filename: pool/non-free/i/intel-pvr-driver/libgles-pvr_1.0~rc1-1_i386.deb
+Size: 447920
+SHA256: d771f3e1e3e2b7a48a1da91a2a7fe9ea84ef3d252970bed860b8a887078fe465
+SHA1: 80d6c7c25565c8b4d24ae925eb512e7e7531fa74
+MD5sum: 2588beb744ca081a7a5ad7f722b954e2
+Description: OpenGL ES libraries for the Intel CedarView platform
+ <insert long description, indented with spaces>
+
+Package: libglsl-pvr
+Source: intel-pvr-driver
+Version: 1.0~rc1-1
+Architecture: i386
+Maintainer: Mikko Rasa <mikko.rasa@movial.com>
+Installed-Size: 344
+Pre-Depends: multiarch-support
+Depends: libc6 (>= 2.1.3)
+Priority: extra
+Section: non-free/x11
+Filename: pool/non-free/i/intel-pvr-driver/libglsl-pvr_1.0~rc1-1_i386.deb
+Size: 137736
+SHA256: 149994babd34a843d2530486c5f490a75e0989fd438a8fca83dc5e309628e32e
+SHA1: 4b303a154f1493ceec24ee44a600d28370f69af9
+MD5sum: 738da586efd911a301e8a35e8fb8f1f9
+Description: GLSL compiler library for the Intel CedarView platform
+ <insert long description, indented with spaces>
+
+Package: libopenvg-pvr
+Source: intel-pvr-driver
+Version: 1.0~rc1-1
+Architecture: i386
+Maintainer: Mikko Rasa <mikko.rasa@movial.com>
+Installed-Size: 528
+Pre-Depends: multiarch-support
+Depends: libc6 (>= 2.3.6-6~), libegl-pvr
+Conflicts: libopenvg1-mesa
+Priority: extra
+Section: non-free/x11
+Filename: pool/non-free/i/intel-pvr-driver/libopenvg-pvr_1.0~rc1-1_i386.deb
+Size: 204130
+SHA256: df833d1df164ca43bb3109773542893f6d353506f9ca3b6172256232574af897
+SHA1: 840a2379f5716100f1de56d48c4e901227576c1b
+MD5sum: 7da970b73b710209e884a56be2f4a459
+Description: OpenVG libraries for the Intel CedarView platform
+ <insert long description, indented with spaces>
+
+Package: libwsbm
+Source: intel-pvr-driver
+Version: 1.0~rc1-1
+Architecture: i386
+Maintainer: Mikko Rasa <mikko.rasa@movial.com>
+Installed-Size: 164
+Pre-Depends: multiarch-support
+Depends: libc6 (>= 2.3.2), libdrm2 (>= 2.3.1)
+Priority: extra
+Section: non-free/x11
+Filename: pool/non-free/i/intel-pvr-driver/libwsbm_1.0~rc1-1_i386.deb
+Size: 60676
+SHA256: 008ee53229da952176d4d7f658fdfaec014abcc7ab43c8867c6a657ed8be04fd
+SHA1: ae90d38507c643bbf05c5398af9a0c599f3964a5
+MD5sum: 362a9d0fcbecba4c07596e8dd6df170f
+Description: libwsbm
+ <insert long description, indented with spaces>
+
+Package: programa2mp
+Version: 1.2.4
+Architecture: i386
+Maintainer: Miguel Angel Garcia <miguel.garcia@gmail.com>
+Installed-Size: 41595
+Depends: libjpeg62
+Homepage: https://2mp.conae.gov.ar/index.php/home/programa-2mp
+Priority: extra
+Section: non-free/science
+Filename: pool/non-free/p/programa2mp/programa2mp_1.2.4_i386.deb
+Size: 10967108
+SHA256: 69f0b433c04d4219afee4f7ddc4a8b4857899e37cbcf5f9503bd7e99bb1c3b1c
+SHA1: 92542de0f0e8ec05565a4381eea23c5325456947
+MD5sum: b0dc18518988ac4ad70c349d31982a95
+Description: Permite acceder y utilizar información de origen satelital.
+ En el marco del Plan Espacial Nacional 2004-2015 se crea el "Programa de
+ Entrenamiento Satelital para niños y jóvenes 2Mp" con el objetivo de acercar
+ la tecnología satelital a 2 Millones de pibes. A través del desarrollo del
+ Programa 2Mp se busca que los alumnos a partir de 8 años de las escuelas de
+ Argentina conozcan, tengan acceso y utilicen la información de origen
+ satelital, y que puedan aplicarla en lo sucesivo a las actividades que
+ desarrollan en el ámbito de su vida cotidiana.
+
