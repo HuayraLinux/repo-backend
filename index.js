@@ -5,6 +5,7 @@ var utils = require('./utils');
 var get_package = require('./debian_packages').get_package;
 var get_source = require('./debian_packages').get_source;
 var config = require('./config');
+var debug = require('./debug')('webapp');
 /* Variables */
 var app = express();
 
@@ -37,6 +38,8 @@ function sanitize_input(req) {
 app.get('/packages/:package', function get_package_versions(req, res) {
 	var params = sanitize_input(req.params);
 	var cmdline = utils.format_map(config.reprepro.package_versions, req.params);
+
+	debug(req.method, req.url);
 
 	exec(cmdline, function exec_package_versions(error, stdout, stderr) {
 		var salida = stdout
@@ -72,6 +75,8 @@ app.get('/packages/:distro/:package', function get_package_info(req, res) {
 	var distro = params.distro;
 	var package_name = params.package;
 
+	debug(req.method, req.url);
+
 	function send(package) {
 		res.send(package)
 	}
@@ -79,10 +84,12 @@ app.get('/packages/:distro/:package', function get_package_info(req, res) {
 	get_package(distro, package_name, send);
 });
 
-app.get('/sources/:distro/:package', function get_package_info(req, res) {
+app.get('/sources/:distro/:package', function get_source_info(req, res) {
 	var params = sanitize_input(req.params);
 	var distro = params.distro;
 	var package_name = params.package;
+
+	debug(req.method, req.url);
 
 	function send(package) {
 		res.send(package)
@@ -94,6 +101,8 @@ app.get('/sources/:distro/:package', function get_package_info(req, res) {
 app.get('/distributions', function get_distro_list(req, res) {
 	var cmdline = config.reprepro.distro_list;
 	var distributions;
+
+	debug(req.method, req.url);
 
 	exec(cmdline, function exec_distro_list(error, stdout, stderr) {
 
@@ -123,6 +132,8 @@ app.get('/distributions', function get_distro_list(req, res) {
 app.get('/distributions/:distro/packages', function get_distro_packages(req, res) {
 	var params = sanitize_input(req.params);
 	var cmdline = utils.format_map(config.reprepro.distro_packages, params);
+
+	debug(req.method, req.url);
 
 	exec(cmdline, function exec_distro_packages(error, stdout, stderr) {
 		var salida = stdout

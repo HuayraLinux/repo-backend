@@ -1,8 +1,9 @@
 /* Imports */
-var config = require('./config.js');
-var format = require('./utils.js').format_map;
-var regex_fold = require('./utils.js').regex_fold;
+var config = require('./config');
+var format = require('./utils').format_map;
+var regex_fold = require('./utils').regex_fold;
 var exec = require('child_process').exec;
+var debug = require('./debug')(__filename);
 /* Variables */
 var APT = {};
 
@@ -11,9 +12,12 @@ module.exports.get_package = function get_package(distro, package, cb) {
 		cb(repo[package]);
 	}
 
+	debug('Se pidió el binario', package, 'de la distro', distro);
+
 	if(APT[distro] === undefined || APT[distro].binaries === undefined) {
 		/* Si la distro tiene un nombre lógico lo agregamos */
 		if(distro !== '..' && distro !== '.') {
+			debug('Leyendo binaries de la distro', distro);
 			read_binaries(distro, end);
 		} else {
 			end({});
@@ -24,14 +28,17 @@ module.exports.get_package = function get_package(distro, package, cb) {
 	end(APT[distro].binaries);
 }
 
-module.exports.get_source = function get_source(distro, package, cb) {
+module.exports.get_source = function get_source(distro, source, cb) {
 	function end(repo) {
-		cb(repo[package]);
+		cb(repo[source]);
 	}
+
+	debug('Se pidió el source', source, 'de la distro', distro);
 
 	if(APT[distro] === undefined || APT[distro].sources === undefined) {
 		/* Si la distro tiene un nombre lógico la agregamos */
 		if(distro !== '..' && distro !== '.') {
+			debug('Leyendo sources de la distro', distro);
 			read_sources(distro, end);
 		} else {
 			end({});
@@ -94,6 +101,8 @@ function parse_packages(text) {
 		.split('\n\n')
 		.slice(0, -1)
 		.map(add_package);
+
+	debug('Leídos', packages.length, 'binaries/sources');
 
 	return packages;
 }

@@ -1,6 +1,8 @@
 config = {};
 
 config['API_PORT'] = 8080;
+config['DEBUG'] = true;
+config['LOG_EXEC_OUTPUT'] = false; /* No tiene efecto aún */
 config['REPREPRO_BASE_DIR'] = '';
 config['REPO_DISTS_DIR'] = config.REPREPRO_BASE_DIR + 'huayra/dists/';
 config['reprepro'] = {
