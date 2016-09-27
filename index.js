@@ -2,7 +2,8 @@
 var express = require('express');
 var exec = require('child_process').exec;
 var utils = require('./utils');
-var get_package = require('./debian_packages');
+var get_package = require('./debian_packages').get_package;
+var get_source = require('./debian_packages').get_source;
 var config = require('./config');
 /* Variables */
 var app = express();
@@ -76,6 +77,18 @@ app.get('/packages/:distro/:package', function get_package_info(req, res) {
 	}
 
 	get_package(distro, package_name, send);
+});
+
+app.get('/sources/:distro/:package', function get_package_info(req, res) {
+	var params = sanitize_input(req.params);
+	var distro = params.distro;
+	var package_name = params.package;
+
+	function send(package) {
+		res.send(package)
+	}
+
+	get_source(distro, package_name, send);
 });
 
 app.get('/distributions', function get_distro_list(req, res) {

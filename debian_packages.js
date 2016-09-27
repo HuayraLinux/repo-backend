@@ -6,35 +6,65 @@ var exec = require('child_process').exec;
 /* Variables */
 var APT = {};
 
-module.exports = function get_package(distro, package, cb) {
+module.exports.get_package = function get_package(distro, package, cb) {
 	function end(repo) {
 		cb(repo[package]);
 	}
 
-	if(APT[distro] === undefined) {
-		add_distro(distro, end);
+	if(APT[distro] === undefined || APT[distro].binaries === undefined) {
+		/* Si la distro tiene un nombre lógico lo agregamos */
+		if(distro !== '..' && distro !== '.') {
+			read_binaries(distro, end);
+		} else {
+			end({});
+		}
 		return;
 	}
 
-	end(APT[distro]);
+	end(APT[distro].binaries);
 }
 
-function add_distro(distro, cb) {
-	/* Si la distro es un nombre tramposo rompemos todo */
-	if(distro === '..' || distro === '.') {
-		cb({});
+module.exports.get_source = function get_source(distro, package, cb) {
+	function end(repo) {
+		cb(repo[package]);
+	}
+
+	if(APT[distro] === undefined || APT[distro].sources === undefined) {
+		/* Si la distro tiene un nombre lógico la agregamos */
+		if(distro !== '..' && distro !== '.') {
+			read_sources(distro, end);
+		} else {
+			end({});
+		}
 		return;
 	}
 
-	read_packages(distro, cb);
+	end(APT[distro].sources);
 }
 
-function read_packages(distro, cb) {
-	var cmdline = format(config.reprepro.distro_repo_packages, { distro: distro });
-	exec(cmdline, function exec_distro_repo_packages(error, stdout, stderr) {
+function read_binaries(distro, cb) {
+	var cmdline = format(config.reprepro.distro_repo_binaries, { distro: distro });
+	exec(cmdline, function exec_distro_repo_binaries(error, stdout, stderr) {
 		var salida = stdout.toString();
 		var package_list = parse_packages(salida);
 		var packages = package_list.reduce(fold_packages, {});
+
+		APT[distro] = APT[distro] || {};
+		APT[distro]['binaries'] = packages;
+
+		cb(packages);
+	});
+}
+
+function read_sources(distro, cb) {
+	var cmdline = format(config.reprepro.distro_repo_sources, { distro: distro });
+	exec(cmdline, function exec_distro_repo_sources(error, stdout, stderr) {
+		var salida = stdout.toString();
+		var package_list = parse_packages(salida);
+		var packages = package_list.reduce(fold_packages, {});
+
+		APT[distro] = APT[distro] || {};
+		APT[distro]['sources'] = packages;
 
 		cb(packages);
 	});
@@ -44,7 +74,7 @@ function parse_packages(text) {
 	var packages;
 
 	function add_package(text) {
-		var field_regex = /.*\n([ ].*\n)*/g;
+		var field_regex = /.+(\n[ ].*)*/g;
 
 		function add_field(package, field_match) {
 			var field = field_match[0].split(': ');
@@ -52,7 +82,7 @@ function parse_packages(text) {
 			package[field[0]] = field
 				.slice(1) /* Quito el fieldname */
 				.join(': ') /* junto todo */
-				.replace(/\n$/, ''); /* Quito el \n del final */
+				.replace(/^ /mg, '');
 
 			return package;
 		}
@@ -62,6 +92,7 @@ function parse_packages(text) {
 
 	packages = text
 		.split('\n\n')
+		.slice(0, -1)
 		.map(add_package);
 
 	return packages;

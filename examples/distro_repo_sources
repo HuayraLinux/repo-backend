@@ -1,0 +1,246 @@
+Package: firmware-siano-rio
+Format: 3.0 (native)
+Binary: firmware-siano-rio
+Architecture: all
+Version: 1.0
+Maintainer: Miguel Angel Garcia <miguel.garcia@gmail.com>
+Standards-Version: 3.9.3
+Vcs-Git: git://200.55.245.7/firmware-siano-rio.git
+Build-Depends: debhelper (>= 8.0.0)
+Package-List:
+ firmware-siano-rio deb non-free/kernel optional
+Priority: optional
+Section: non-free/kernel
+Directory: pool/non-free/f/firmware-siano-rio
+Files: 
+ cd0ce46a2e25bbbe3c83409865e2747c 1518 firmware-siano-rio_1.0.dsc
+ 35df60892c8bc158c60b323ac53d51cf 56236 firmware-siano-rio_1.0.tar.gz
+Checksums-Sha1: 
+ 444afc8df94ecf5fd703b9468cc14ef332db2356 1518 firmware-siano-rio_1.0.dsc
+ e50166959540ddc64d0d97555130b5eef1db6fd3 56236 firmware-siano-rio_1.0.tar.gz
+Checksums-Sha256: 
+ 0379026920c6fc0a4f7c460a255fe3e8ecbc77de330de4ce7ef833c2058aeb66 1518 firmware-siano-rio_1.0.dsc
+ 7110c2f652857cac31f7b092a7cea9dc5c13390609803f275a8070f329747673 56236 firmware-siano-rio_1.0.tar.gz
+
+Package: huayra-tpm
+Format: 1.0
+Binary: huayra-tpm
+Architecture: any
+Version: 2.0.0.117-3
+Maintainer: Miguel Angel Garcia <miguel.garcia@gmail.com>
+Standards-Version: 3.9.3
+Vcs-Git: git@devel.huayra.conectarigualdad.gob.ar:/huayra-tpm.git
+Build-Depends: debhelper (>= 8.0.0), libnotify4, libssl1.0.0, libatk1.0-0, libpango1.0-0, libgtk2.0-0
+Package-List:
+ huayra-tpm deb non-free/utils extra arch=any
+Priority: extra
+Section: non-free/utils
+Directory: pool/non-free/h/huayra-tpm
+Files: 
+ 8d5e2560709a177126c1d6adcecbb5e1 926 huayra-tpm_2.0.0.117-3.dsc
+ 2466960c070f99fad9b118fb52071f7f 6466591 huayra-tpm_2.0.0.117-3.tar.gz
+Checksums-Sha1: 
+ 2dee800a15707e792a47bea95466195f49ed1634 926 huayra-tpm_2.0.0.117-3.dsc
+ 1ad17b183d32b4eeab82e028506433ce81fc9306 6466591 huayra-tpm_2.0.0.117-3.tar.gz
+Checksums-Sha256: 
+ 825984f5d19c7b35fb28c4cca6cce0070eadd5267bd03379b8ab1683a4318b85 926 huayra-tpm_2.0.0.117-3.dsc
+ 590428b9aaead8c6259667bd1fd3466ae842b2d5f4b4fe1b8f3e8e9c21a65901 6466591 huayra-tpm_2.0.0.117-3.tar.gz
+
+Package: intel-pvr-support
+Format: 3.0 (native)
+Binary: intel-pvr-support, intel-pvr-kernel-dkms
+Architecture: i386
+Version: 1.0.3.10
+Maintainer: Miguel Angel Garcia <miguel.garcia@gmail.com>
+Standards-Version: 3.9.3
+Vcs-Git: git://devel.huayra.conectarigualdad.gob.ar/intel-pvr-support.git
+Build-Depends: debhelper (>= 7), dkms
+Package-List:
+ intel-pvr-kernel-dkms deb non-free/kernel optional
+ intel-pvr-support deb non-free/kernel optional
+Priority: optional
+Section: non-free/kernel
+Directory: pool/non-free/i/intel-pvr-support
+Files: 
+ 18cc6a15ff8eaa26c3fd949913b0b241 1639 intel-pvr-support_1.0.3.10.dsc
+ 7b4d0eff9605fbee010e2d5db24627d1 1201078 intel-pvr-support_1.0.3.10.tar.gz
+Checksums-Sha1: 
+ a0f41e142b1be34b290977a6a6417a9730846c5f 1639 intel-pvr-support_1.0.3.10.dsc
+ 21bd29ceda448b470cba54541362f1bde964f45b 1201078 intel-pvr-support_1.0.3.10.tar.gz
+Checksums-Sha256: 
+ ae8be86017d1b6ec44c383ca5af39e31a3ab1e7707f489e08608855930090e3e 1639 intel-pvr-support_1.0.3.10.dsc
+ a52de2ed5b4059f1714ad1f0ba1823ff5c7584633eeeabaf8b9c81f4356ade02 1201078 intel-pvr-support_1.0.3.10.tar.gz
+
+Package: node-webkit
+Format: 3.0 (native)
+Binary: node-webkit
+Architecture: i386 amd64
+Version: 0.12.3.1
+Maintainer: Hugo Ruscitti <hugoruscitti@gmail.com>
+Homepage: https://github.com/rogerwang/node-webkit
+Standards-Version: 3.9.6
+Vcs-Browser: https://github.com/HuayraLinux/node-webkit
+Vcs-Git: https://github.com/HuayraLinux/node-webkit.git
+Build-Depends: debhelper (>= 9.0.0)
+Package-List:
+ node-webkit deb non-free/utils extra arch=i386,amd64
+Priority: extra
+Section: non-free/utils
+Directory: pool/non-free/n/node-webkit
+Files: 
+ 4d1e0e031c53fc350c8ead83d83560bf 1607 node-webkit_0.12.3.1.dsc
+ 53c8c7a4adc3821350973ead95dd85a1 1846648 node-webkit_0.12.3.1.tar.xz
+Checksums-Sha1: 
+ afe84c6a8f239f17009d2b1081f92b8c676a686e 1607 node-webkit_0.12.3.1.dsc
+ 3e1086d44f3018ce299ccb1444887856cd118ce8 1846648 node-webkit_0.12.3.1.tar.xz
+Checksums-Sha256: 
+ d90105cb7605bf20196a82541a9b243d5b78f23c158020728805e031c1754c54 1607 node-webkit_0.12.3.1.dsc
+ dff5622a0a6e0b8e37e30592a00d9e871a8f77458b57e32f1f51df9b7c507b7b 1846648 node-webkit_0.12.3.1.tar.xz
+
+Package: rtl-8723-dkms
+Format: 3.0 (native)
+Binary: rtl-8723-dkms, rtl-8723-firmware, rtl-8723-firmware-jessie
+Architecture: all
+Version: 1.3.3
+Maintainer: Fernando Toledo <ragnarok@docksud.com.ar>
+Standards-Version: 3.9.5
+Build-Depends: debhelper (>= 8.0.0), dkms
+Package-List:
+ rtl-8723-dkms deb non-free/kernel optional arch=all
+ rtl-8723-firmware deb non-free/kernel optional arch=all
+ rtl-8723-firmware-jessie deb non-free/kernel optional arch=all
+Priority: optional
+Section: non-free/kernel
+Directory: pool/non-free/r/rtl-8723-dkms
+Files: 
+ 162e5f5a1134667a8f019091b9f4a93e 1623 rtl-8723-dkms_1.3.3.dsc
+ 4176afb24db437ace2c477893aada3d9 641668 rtl-8723-dkms_1.3.3.tar.xz
+Checksums-Sha1: 
+ 4510a3896a6e57d6c2bdf745c9b247883df425a1 1623 rtl-8723-dkms_1.3.3.dsc
+ 51cc8369e9f2b2a2a61b701f2889bf1a73907f0d 641668 rtl-8723-dkms_1.3.3.tar.xz
+Checksums-Sha256: 
+ ddaddff2803d73ba009bc10691d4661e6a23ae6302d1e9e3c6f5df107f2b66ba 1623 rtl-8723-dkms_1.3.3.dsc
+ 3450090fe6bcaf7f3a407a4e8ca720003240d04680bee7694cf4a0396739365d 641668 rtl-8723-dkms_1.3.3.tar.xz
+
+Package: rtl-8723-new-dkms
+Format: 3.0 (native)
+Binary: rtl-8723-new-dkms
+Architecture: all
+Version: 1.2
+Maintainer: Fernando Toledo <ragnarok@docksud.com.ar>
+Standards-Version: 3.9.5
+Build-Depends: debhelper (>= 8.0.0), dkms
+Package-List:
+ rtl-8723-new-dkms deb non-free/kernel optional arch=all
+Priority: optional
+Section: non-free/kernel
+Directory: pool/non-free/r/rtl-8723-new-dkms
+Files: 
+ f54dd95fcfbf8f0bc35f458dd135ac59 1111 rtl-8723-new-dkms_1.2.dsc
+ d5df34fa910eef8e7abc52b2bf479e6b 1220944 rtl-8723-new-dkms_1.2.tar.xz
+Checksums-Sha1: 
+ 5fe352dbbcf12b8aa913e3fd0a0dfaa0e72d4287 1111 rtl-8723-new-dkms_1.2.dsc
+ cc1cae88fc503761d59a473610846b945825f7b1 1220944 rtl-8723-new-dkms_1.2.tar.xz
+Checksums-Sha256: 
+ 13d48afcd28df92d78b74748609bb3cddb43514b79296ea218a3fab06d6f041d 1111 rtl-8723-new-dkms_1.2.dsc
+ c15033a68f3280e1c416cc2fef1107f16d101ec81b30a1f93e5f221b571a13bc 1220944 rtl-8723-new-dkms_1.2.tar.xz
+
+Package: rtl-8723-rock-dkms
+Format: 3.0 (native)
+Binary: rtl-8723-rock-dkms, rtl-8723-rock-firmware
+Architecture: all
+Version: 1.3.7
+Maintainer: Fernando Toledo <ragnarok@docksud.com.ar>
+Standards-Version: 3.9.5
+Build-Depends: debhelper (>= 8.0.0), dkms
+Package-List:
+ rtl-8723-rock-dkms deb non-free/kernel optional arch=all
+ rtl-8723-rock-firmware deb non-free/kernel optional arch=all
+Priority: optional
+Section: non-free/kernel
+Directory: pool/non-free/r/rtl-8723-rock-dkms
+Files: 
+ 8bd87f8d6feacdbf534441bc40a3c760 916 rtl-8723-rock-dkms_1.3.7.dsc
+ fd358651bc48ca547d0bcc2e6f5ed34a 646228 rtl-8723-rock-dkms_1.3.7.tar.xz
+Checksums-Sha1: 
+ 5df611c0ac2f8c4bdb0cc7cd9c9d5eca5161ad0d 916 rtl-8723-rock-dkms_1.3.7.dsc
+ 5f8202656701dd745c111e9d9fca8d2e27833c85 646228 rtl-8723-rock-dkms_1.3.7.tar.xz
+Checksums-Sha256: 
+ 2c5e490c14e0c67fc15fdb36e5136028c48c8111fa4ed15704b03db9106720c1 916 rtl-8723-rock-dkms_1.3.7.dsc
+ 358673bf9cee161c1e3acdedc802c5a6a165ca2c07d22fc20584c05cecdc1fbc 646228 rtl-8723-rock-dkms_1.3.7.tar.xz
+
+Package: sdcc-libraries-nonfree
+Format: 3.0 (quilt)
+Binary: sdcc-libraries-nonfree
+Architecture: all
+Version: 3.1.0-1.1
+Maintainer: Miguel Angel Garcia <miguel.garcia@gmail.com>
+Homepage: http://sdcc.sourceforge.net
+Standards-Version: 3.9.3
+Vcs-Git: http://github.com/huayralinux/sdcc-libraries-nonfree
+Build-Depends: debhelper (>= 8), autoconf, autotools-dev, libtool, flex, bison, libncurses5-dev, gputils, libboost-dev
+Package-List:
+ sdcc-libraries-nonfree deb non-free/electronics optional
+Priority: optional
+Section: non-free/electronics
+Directory: pool/non-free/s/sdcc-libraries-nonfree
+Files: 
+ 99b7591468794deb5beff2e0b44f59e7 2015 sdcc-libraries-nonfree_3.1.0-1.1.dsc
+ 92202e970071a8b506fea62a913bd2d2 4297291 sdcc-libraries-nonfree_3.1.0.orig.tar.bz2
+ 4b98fffc1167dffd74170add7c0d62de 19164 sdcc-libraries-nonfree_3.1.0-1.1.debian.tar.gz
+Checksums-Sha1: 
+ f157d4d7fdf9906ab5f5caeef99f594c48d28fe2 2015 sdcc-libraries-nonfree_3.1.0-1.1.dsc
+ 4806c79bd1572c3be8e8a9ee68f94c31d251d530 4297291 sdcc-libraries-nonfree_3.1.0.orig.tar.bz2
+ f3d6b46aa1534d33d7ba3f24c14f27b1ce08d9c4 19164 sdcc-libraries-nonfree_3.1.0-1.1.debian.tar.gz
+Checksums-Sha256: 
+ 5627d1dcd3f7a1b23a2319ab3898b7fdccfdf0b73eb3a0d5fee45ec4075d8696 2015 sdcc-libraries-nonfree_3.1.0-1.1.dsc
+ e8802e79b0247bbb51dec49047a2247ad4da1d89cf1aefd49e35d65aee91d185 4297291 sdcc-libraries-nonfree_3.1.0.orig.tar.bz2
+ 0d34ed1cc39644b44cbe7e5f945f65ae788159967c18faba05a2a3311121b6ad 19164 sdcc-libraries-nonfree_3.1.0-1.1.debian.tar.gz
+
+Package: siano-mdtv-dkms
+Format: 3.0 (native)
+Binary: siano-mdtv-dkms
+Architecture: all
+Version: 1.0
+Maintainer: Miguel Angel Garcia <miguel.garcia@gmail.com>
+Standards-Version: 3.9.3
+Vcs-Git: git://200.55.245.7/siano-mdtv-dkms.git
+Build-Depends: debhelper (>= 8.0.0), dkms
+Package-List:
+ siano-mdtv-dkms deb non-free/kernel optional
+Priority: optional
+Section: non-free/kernel
+Directory: pool/non-free/s/siano-mdtv-dkms
+Files: 
+ 283f23b885cd521df581ce46e5776428 1503 siano-mdtv-dkms_1.0.dsc
+ eaf6fb611f1b16f924e62139cf784aa2 58025 siano-mdtv-dkms_1.0.tar.gz
+Checksums-Sha1: 
+ e6f08780d97eb5673ba626f61f62d52ae8592275 1503 siano-mdtv-dkms_1.0.dsc
+ b9896167af5a344c51f7cac3d0ffa9f1ab0c55ca 58025 siano-mdtv-dkms_1.0.tar.gz
+Checksums-Sha256: 
+ cdd57adc34fbcfe86c982e3f1cb0223bed30cf3899bca718038a80bdf74dae8f 1503 siano-mdtv-dkms_1.0.dsc
+ fafc930e7f001b5e602ef6b6306a581e46489408da9996d8a2e0cbdf2870fe7d 58025 siano-mdtv-dkms_1.0.tar.gz
+
+Package: tpmdoctor
+Format: 3.0 (native)
+Binary: tpmdoctor
+Architecture: i386 amd64
+Version: 1.0
+Maintainer: Fernando Toledo <ragnarok@docksud.com.ar>
+Standards-Version: 3.9.3
+Build-Depends: debhelper (>= 8.0.0)
+Package-List:
+ tpmdoctor deb non-free/utils optional arch=i386,amd64
+Priority: optional
+Section: non-free/utils
+Directory: pool/non-free/t/tpmdoctor
+Files: 
+ c59f8c98d4fc3ae55659a3473d46089d 775 tpmdoctor_1.0.dsc
+ 3ec61d3035850fe5f8bcdb14dfce894b 358680 tpmdoctor_1.0.tar.xz
+Checksums-Sha1: 
+ 5bb81a8a5bedfe151dfcfeeaf41871c0187ef9c2 775 tpmdoctor_1.0.dsc
+ d9a4d14bc068d68715bd12070bdee7c4eceb4c5b 358680 tpmdoctor_1.0.tar.xz
+Checksums-Sha256: 
+ b656746317977d4c193fae5d60c79fe424d7613aa095d9150ab2c15017a9157f 775 tpmdoctor_1.0.dsc
+ 39ea91074e10fccfe9e4fd535f395617a2e1a2e621b6f41ff67bce61b4590f2c 358680 tpmdoctor_1.0.tar.xz
+
