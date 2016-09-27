@@ -66,7 +66,7 @@ app.get('/packages/:package', function get_package_versions(req, res) {
 		if(salida === '') {
 			var error = {
 				code: 404,
-				message: 'No se encontró el paquete \'' + req.package + '\'',
+				message: 'No se encontró el paquete \'' + params.package + '\'',
 				params: params,
 				stderr: stderr.toString()
 			};
@@ -237,7 +237,7 @@ app.get('/distributions/:distro/packages', function get_distro_packages(req, res
 		if(salida === '') {
 			var error = {
 				code: 404,
-				message: 'No existe la distribución \'' + req.distro + '\'',
+				message: 'No existe la distribución \'' + params.distro + '\'',
 				params: params,
 				stderr: stderr.toString()
 			};
