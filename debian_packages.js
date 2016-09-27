@@ -26,7 +26,7 @@ module.exports.get_package = function get_package(distro, package, cb) {
 	}
 
 	end(APT[distro].binaries);
-}
+};
 
 module.exports.get_source = function get_source(distro, source, cb) {
 	function end(repo) {
@@ -47,7 +47,7 @@ module.exports.get_source = function get_source(distro, source, cb) {
 	}
 
 	end(APT[distro].sources);
-}
+};
 
 function read_binaries(distro, cb) {
 	var cmdline = format(config.reprepro.distro_repo_binaries, { distro: distro });
@@ -57,7 +57,7 @@ function read_binaries(distro, cb) {
 		var packages = package_list.reduce(fold_packages, {});
 
 		APT[distro] = APT[distro] || {};
-		APT[distro]['binaries'] = packages;
+		APT[distro].binaries = packages;
 
 		cb(packages);
 	});
@@ -71,7 +71,7 @@ function read_sources(distro, cb) {
 		var packages = package_list.reduce(fold_packages, {});
 
 		APT[distro] = APT[distro] || {};
-		APT[distro]['sources'] = packages;
+		APT[distro].sources = packages;
 
 		cb(packages);
 	});
@@ -110,12 +110,12 @@ function parse_packages(text) {
 function fold_packages(packages, package) {
 	var name = package.Package;
 	var version = {
-		'Architecture': package['Architecture'],
-		'Version': package['Version'],
-		'Size': package['Size'],
+		Architecture: package.Architecture,
+		Version: package.Version,
+		Size: package.Size,
+		Filename: package.Filename,
 		'Installed-Size': package['Installed-Size'],
-		'Filename': package['Filename']
-	}
+	};
 
 	if(packages[name]) {
 		packages[name].versions.push(version);

@@ -62,6 +62,22 @@ app.get('/packages/:package', function get_package_versions(req, res) {
 			};
 		}
 
+		/* Si la salida es vacía no se encontró el paquete */
+		if(salida === '') {
+			var error = {
+				code: 404,
+				message: 'No se encontró el paquete \'' + req.package + '\'',
+				params: params,
+				stderr: stderr.toString()
+			};
+
+			res.status(404);
+			res.send(error);
+			debug('NOT-FOUND:', req.method, req.url, error.message);
+
+			return;
+		}
+
 		versiones = salida
 			.split('\n')
 			.reduce(add_version, { versions: [] });
@@ -78,7 +94,21 @@ app.get('/packages/:distro/:package', function get_package_info(req, res) {
 	debug(req.method, req.url);
 
 	function send(package) {
-		res.send(package)
+		if(package === undefined) {
+			var error = {
+				code: 404,
+				message: 'No se encontró el paquete binario \'' + package_name + '\' en la distro \'' + distro + '\'',
+				params: params
+			};
+
+			res.status(404);
+			res.send(error);
+			debug('NOT-FOUND:', req.method, req.url, error.message);
+
+			return;
+		}
+
+		res.send(package);
 	}
 
 	get_package(distro, package_name, send);
@@ -92,7 +122,21 @@ app.get('/sources/:distro/:package', function get_source_info(req, res) {
 	debug(req.method, req.url);
 
 	function send(package) {
-		res.send(package)
+		if(package === undefined) {
+			var error = {
+				code: 404,
+				message: 'No se encontró el paquete source \'' + package_name + '\' en la distro \'' + distro + '\'',
+				params: params
+			};
+
+			res.status(404);
+			res.send(error);
+			debug('NOT-FOUND:', req.method, req.url, error.message);
+
+			return;
+		}
+
+		res.send(package);
 	}
 
 	get_source(distro, package_name, send);
@@ -189,6 +233,22 @@ app.get('/distributions/:distro/packages', function get_distro_packages(req, res
 			return packages;
 		}
 
+		/* Si la salida es vacía no se encontró el paquete */
+		if(salida === '') {
+			var error = {
+				code: 404,
+				message: 'No existe la distribución \'' + req.distro + '\'',
+				params: params,
+				stderr: stderr.toString()
+			};
+
+			res.status(404);
+			res.send(error);
+			debug('NOT-FOUND:', req.method, req.url, error.message);
+
+			return;
+		}
+
 		packages = salida
 			.split('\n')
 			.map(add_package)
@@ -199,7 +259,6 @@ app.get('/distributions/:distro/packages', function get_distro_packages(req, res
 		res.send(package_list);
 	});
 });
-
 
 app.listen(config.API_PORT, function start_server() {
   console.log('Example app listening on port', config.API_PORT);
