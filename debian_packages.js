@@ -52,7 +52,7 @@ module.exports.get_source = function get_source(distro, source, cb) {
 
 function read_binaries(distro, cb) {
 	var cmdline = format(config.reprepro.distro_repo_binaries, { distro: distro });
-	exec(cmdline, function exec_distro_repo_binaries(error, stdout, stderr) {
+	exec(cmdline, { maxBuffer: 1024 * 1024 * 15 }, function exec_distro_repo_binaries(error, stdout, stderr) {
 		var salida = stdout.toString();
 		var package_list = parse_packages(salida);
 		var packages = package_list.reduce(fold_packages, {});
@@ -66,7 +66,7 @@ function read_binaries(distro, cb) {
 
 function read_sources(distro, cb) {
 	var cmdline = format(config.reprepro.distro_repo_sources, { distro: distro });
-	exec(cmdline, function exec_distro_repo_sources(error, stdout, stderr) {
+	exec(cmdline, { maxBuffer: 1024 * 1024 * 15 }, function exec_distro_repo_sources(error, stdout, stderr) {
 		var salida = stdout.toString();
 		var package_list = parse_packages(salida);
 		var packages = package_list.reduce(fold_packages, {});
@@ -87,10 +87,7 @@ function parse_packages(text) {
 		function add_field(package, field_match) {
 			var field = field_match[0].split(': ');
 
-			package[field[0]] = field
-				.slice(1) /* Quito el fieldname */
-				.join(': ') /* junto todo */
-				.replace(/^ /mg, '');
+			package[field[0]] = field.slice(1) /* Quito el fieldname */.join(': ') /* junto todo */.replace(/^ /mg, '');
 
 			return package;
 		}
@@ -98,10 +95,7 @@ function parse_packages(text) {
 		return regex_fold(field_regex, text, add_field, {});
 	}
 
-	packages = text
-		.split('\n\n')
-		.slice(0, -1)
-		.map(add_package);
+	packages = text.split('\n\n').slice(0, -1).map(add_package);
 
 	debug('Leídos', packages.length, 'binaries/sources');
 
