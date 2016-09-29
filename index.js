@@ -2,10 +2,15 @@
 var express = require('express');
 var exec = require('child_process').exec;
 var utils = require('./utils');
-var get_package = require('./debian_packages').get_package;
-var get_source = require('./debian_packages').get_source;
+var debian_packages = require('./debian_packages');
 var config = require('./config');
 var debug = require('./debug')('webapp');
+
+var get_package = debian_packages.get_package;
+var get_source = debian_packages.get_source;
+var read_binaries = debian_packages.read_binaries;
+var read_sources = debian_packages.read_sources;
+
 /* Variables */
 var app = express();
 
@@ -175,66 +180,13 @@ app.get('/distributions', function get_distro_list(req, res) {
 
 app.get('/distributions/:distro/packages', function get_distro_packages(req, res) {
 	var params = sanitize_input(req.params);
-	var cmdline = utils.format_map(config.reprepro.distro_packages, params);
+	var distro;
 
 	debug(req.method, req.url);
 
-	exec(cmdline, function exec_distro_packages(error, stdout, stderr) {
-		var salida = stdout
-			.toString()
-			.replace(/\n$/g, ''); /* Quito el salto de línea final */
-		var packages;
-		var package_list;
-
-		function add_package(text) {
-			var package = {};
-			var data = text.split(': ');
-
-			function add_repo_data(text, index) {
-				var FIELDS = ['distro', 'component', 'arch'];
-				package[FIELDS[index]] = text;
-				return package;
-			}
-
-			function add_package_data(text, index) {
-				var FIELDS = ['package', 'version'];
-				package[FIELDS[index]] = text;
-				return package;
-			}
-
-			data[0]
-				.replace(/^u\|/, '') /* Quito la marca de udeb porque no la usamos */
-				.split('|')
-				.forEach(add_repo_data);
-			data[1]
-				.split(' ')
-				.forEach(add_package_data);
-
-			return package;
-		}
-
-		function fold_packages(packages, package) {
-			var name = package.package;
-			var version = {
-				arch: package.arch,
-				version: package.version
-			};
-
-			if(packages[name]) {
-				packages[name].versions.push(version);
-			} else {
-				packages[name] = {
-					package: name,
-					distro: package.distro,
-					component: package.component,
-					versions: [version]
-				};
-			}
-			return packages;
-		}
-
+	function list_packages(packages) {
 		/* Si la salida es vacía no se encontró el paquete */
-		if(salida === '') {
+		if(Object.keys(packages).length === 0) {
 			var error = {
 				code: 404,
 				message: 'No existe la distribución \'' + params.distro + '\'',
@@ -249,15 +201,11 @@ app.get('/distributions/:distro/packages', function get_distro_packages(req, res
 			return;
 		}
 
-		packages = salida
-			.split('\n')
-			.map(add_package)
-			.reduce(fold_packages, {});
-
-		package_list = utils.object_values(packages);
-
 		res.send(package_list);
-	});
+	}
+
+	distro = debian_packages.get_distro(distro);
+	distro.sources.map
 });
 
 app.listen(config.API_PORT, function start_server() {
