@@ -5,11 +5,7 @@ var utils = require('./utils');
 var debian_packages = require('./debian_packages');
 var config = require('./config');
 var debug = require('./debug')('webapp');
-
-var get_package = debian_packages.get_package;
-var get_source = debian_packages.get_source;
-var read_binaries = debian_packages.read_binaries;
-var read_sources = debian_packages.read_sources;
+var repo = { binaries_loaded: false, sources_loaded: false };
 
 /* Variables */
 var app = express();
@@ -46,7 +42,7 @@ app.get('/packages/:package', function get_package_versions(req, res) {
 
 	debug(req.method, req.url);
 
-	exec(cmdline, function exec_package_versions(error, stdout, stderr) {
+	exec(cmdline, function exec_package_versions(execerror, stdout, stderr) {
 		var salida = stdout
 			.toString()
 			.replace(/ /g, '')   /* Quito todos los espacios  */
@@ -95,56 +91,84 @@ app.get('/packages/:distro/:package', function get_package_info(req, res) {
 	var params = sanitize_input(req.params);
 	var distro = params.distro;
 	var package_name = params.package;
+	var package;
+	var error;
 
 	debug(req.method, req.url);
 
-	function send(package) {
-		if(package === undefined) {
-			var error = {
-				code: 404,
-				message: 'No se encontró el paquete binario \'' + package_name + '\' en la distro \'' + distro + '\'',
-				params: params
-			};
+	if(repo.binaries_loaded === false) {
+		error = {
+			code: 500,
+			message: 'El servicio no terminó de inicializarse, intente en unos minutos',
+			params: params
+		};
 
-			res.status(404);
-			res.send(error);
-			debug('NOT-FOUND:', req.method, req.url, error.message);
+		res.status(500);
+		res.send(error);
+		debug('NOT-INITIALIZED', req.method, req.url, error.message);
 
-			return;
-		}
-
-		res.send(package);
+		return;
 	}
 
-	get_package(distro, package_name, send);
+	package = repo.binaries.get(distro, package_name);
+
+	if(package === undefined) {
+		error = {
+			code: 404,
+			message: 'No se encontró el paquete binario \'' + package_name + '\' en la distro \'' + distro + '\'',
+			params: params
+		};
+
+		res.status(404);
+		res.send(error);
+		debug('NOT-FOUND:', req.method, req.url, error.message);
+
+		return;
+	}
+
+	res.send(package);
 });
 
 app.get('/sources/:distro/:package', function get_source_info(req, res) {
 	var params = sanitize_input(req.params);
 	var distro = params.distro;
 	var package_name = params.package;
+	var package;
+	var error;
 
 	debug(req.method, req.url);
 
-	function send(package) {
-		if(package === undefined) {
-			var error = {
-				code: 404,
-				message: 'No se encontró el paquete source \'' + package_name + '\' en la distro \'' + distro + '\'',
-				params: params
-			};
+	if(repo.sources_loaded === false) {
+		error = {
+			code: 500,
+			message: 'El servicio no terminó de inicializarse, intente en unos minutos',
+			params: params
+		};
 
-			res.status(404);
-			res.send(error);
-			debug('NOT-FOUND:', req.method, req.url, error.message);
+		res.status(500);
+		res.send(error);
+		debug('NOT-INITIALIZED', req.method, req.url, error.message);
 
-			return;
-		}
-
-		res.send(package);
+		return;
 	}
 
-	get_source(distro, package_name, send);
+	package = repo.sources.get(distro, package_name);
+
+	if(package === undefined) {
+		error = {
+			code: 404,
+			message: 'No se encontró el paquete source \'' + package_name + '\' en la distro \'' + distro + '\'',
+			params: params
+		};
+
+		res.status(404);
+		res.send(error);
+		debug('NOT-FOUND:', req.method, req.url, error.message);
+
+		return;
+	}
+
+	res.send(package);
 });
 
 app.get('/distributions', function get_distro_list(req, res) {
@@ -205,9 +229,34 @@ app.get('/distributions/:distro/packages', function get_distro_packages(req, res
 	}
 
 	distro = debian_packages.get_distro(distro);
-	distro.sources.map
+	//distro.sources.map
+	/* ERROR: COMPLETAR */
 });
 
 app.listen(config.API_PORT, function start_server() {
   console.log('Example app listening on port', config.API_PORT);
 });
+
+
+function load_packages() {
+	function binaries_loaded(binaries) {
+		repo.binaries_loaded = true;
+		repo.binaries = binaries;
+
+		debug('Cargados los binarios');
+	}
+
+	function sources_loaded(sources) {
+		repo.sources_loaded = true;
+		repo.sources = sources;
+
+		debug('Cargados los sources');
+	}
+
+	debian_packages.init_binaries(binaries_loaded);
+	debian_packages.init_sources(sources_loaded);
+
+	debug('Cargando binarios y sources');
+}
+
+load_packages();

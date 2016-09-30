@@ -9,14 +9,14 @@ config['reprepro'] = {
 	package_versions: 'cat examples/package_versions',
 	distro_list: 'cat examples/distro_list',
 	distro_packages: 'cat examples/distro_packages',
-	repo_package_files: 'cat examples/repo_package_files',
-	repo_source_files: 'cat examples/repo_source_files'
+	search_package_files: 'cat examples/repo_package_files',
+	search_source_files: 'cat examples/repo_source_files'
 };
 //config['reprepro'] = {
 //	package_versions: 'reprepro ls "<package>"',
 // 	distro_list: 'cat ' + config.REPREPRO_BASE_DIR + '/conf/distributions',
 // 	distro_packages: 'reprepro list "<distro>"',
-//	distro_repo_binaries: 'find "' + config.REPO_DISTS_DIR + '/<distro>" -iname Packages.gz',
-//	distro_repo_sources: 'find "' + config.REPO_DISTS_DIR + '/<distro>" -iname Sources.gz'
+//	search_package_files: 'find "' + config.REPO_DISTS_DIR + '" -iname Packages.gz',
+//	search_source_files: 'find "' + config.REPO_DISTS_DIR + '" -iname Sources.gz'
 //};
 module.exports = config;

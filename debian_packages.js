@@ -9,136 +9,135 @@ var debug = require('./debug')(__filename);
 var format = utils.format_map;
 var regex_fold = utils.regex_fold;
 
-/* Variables */
-var APT = {
-	/* Estos valores quedan cargados vacíos tal que si alguien intenta
-	 * hacer cosas malas formulando nombres de porquería en las distros
-	 * termine recibiendo un 404
-	 */
-	'..': {
-		binaries: {},
-		sources: {}
-	},
-	'.': {
-		binaries: {},
-		sources: {}
-	}
-};
-
 /* Diccionario para parsear fields específicos */
 var FIELD = {};
 
-function get_package(distro, package, cb) {
-	function end(repo) {
-		cb(repo[package]);
-	}
+function init_parser(files) {
+	var repo = {};
 
-	debug('Se pidió el binario', package, 'de la distro', distro);
+	function watch_file(file) {
+		var filewatch;
+		var distro_regex = /(\/[^/]+)\/[^/]+\/[^/]+\/[^/]+$/;
+		var distro_match = distro_regex.exec(file);
+		var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
 
-	if(APT[distro] === undefined || APT[distro].binaries === undefined) {
-		debug('Leyendo binaries de la distro', distro);
-		read_binaries(distro, end);
-	} else {
-		end(APT[distro].binaries);
-	}
-}
+		function read_to_repo(event, filename) {
+			filename = filename || file;
 
-function get_source(distro, source, cb) {
-	function end(repo) {
-		cb(repo[source]);
-	}
+			debug('El archivo', filename, 'se ha modificado');
 
-	debug('Se pidió el source', source, 'de la distro', distro);
-
-	if(APT[distro] === undefined || APT[distro].sources === undefined) {
-		debug('Leyendo sources de la distro', distro);
-		read_sources(distro, end);
-	} else {
-		end(APT[distro].sources);
-	}
-}
-
-function read_binaries(distro, cb) {
-	var cmdline = format(config.reprepro.repo_package_files, { distro: distro });
-
-	function exec_repo_package_files(error, stdout, stderr) {
-		var files = stdout
-			.toString()
-			.replace(/\n$/, '') /* Vuelo el salto de línea final */
-			.split('\n');
-
-		function load_binaries_distro(packages) {
-			APT[distro] = APT[distro] || {};
-			APT[distro].binaries = packages; /* La asigno a donde corresponde */
-
-			cb(packages);
-
-			debug('Leídos', Object.keys(packages).length, 'binaries/sources');
+			read_file(filename, save_to_repo);
 		}
 
-		read_repo_files(files, load_binaries_distro);
-	}
+		function save_to_repo(contents, filename) {
+			var distro_match = distro_regex.exec(filename);
+			var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
 
-	exec(cmdline, { maxBuffer: 1024 * 1024 * 15 }, exec_repo_package_files);
-}
-
-function read_sources(distro, cb) {
-	var cmdline = format(config.reprepro.repo_source_files, { distro: distro });
-	var read_files = read_repo_files.bind(null, 'sources', cb);
-
-	function exec_repo_source_files(error, stdout, stderr) {
-		var files = stdout
-			.toString()
-			.replace(/\n$/, '') /* Vuelo el salto de línea final */
-			.split('\n');
-
-		function load_sources_distro(packages) {
-			APT[distro] = APT[distro] || {};
-			APT[distro].sources = packages; /* La asigno a donde corresponde */
-
-			cb(packages);
-
-			debug('Leídos', Object.keys(packages).length, 'binaries/sources');
+			filewatch.contents = contents;
+			filewatch.filename = filename;
+			filewatch.distro = distro;
+			filewatch.lastread = Date.now();
 		}
 
-		read_repo_files(files, load_sources_distro);
+		filewatch = {
+			contents: { lastfold:0 },
+			filename: file,
+			distro: distro,
+			lastread: 0,
+			watch: fs.watch(file, read_to_repo)
+		};
+
+		return filewatch;
 	}
 
-	exec(cmdline, { maxBuffer: 1024 * 1024 * 15 }, exec_repo_source_files);
+	repo.watches = files.map(watch_file);
+	repo.get = repo_get.bind(null, repo);
+
+	return repo;
 }
 
-/* Dado que tengo que llamar el callback una sóla vez esta función va
- * haciendo un fold asíncrono sobre los archivos y al procesar todo
- * llama al callback
- */
-function read_repo_files(files, cb, package_list) {
-	var file = files[0];
-	var next_files = files.slice(1);
-	package_list = package_list || [];
-
-	debug('Leyendo', file);
-
-	function read_file(error, data) {
-		var component_match = /(\/[^/]+)\/[^/]+\/[^/]+$/.exec(file); /* Matcheo el directorio correspondiente al componente */
+function read_file(filename, cb) {
+	function parse_file(error, data) {
+		var component_match = /(\/[^/]+)\/[^/]+\/[^/]+$/.exec(filename); /* Matcheo el directorio correspondiente al componente */
 		var component = component_match && component_match[1] ? component_match[1] : 'unknown'; /* Si no matchié algo con sentido no se cuál es el componente */
 		var packages_text = data.toString();
-		var file_package_list = parse_packages(packages_text, component); /* Parseo este archivo */
-		var next_package_list = package_list.concat(file_package_list); /* Lo agrego con los anteriores*/
+		var package_list = parse_packages(packages_text, component); /* Parseo este archivo */
 
-		if(files.length === 1) { /* Era el último? */
-			var packages = next_package_list.reduce(fold_packages, {}); /* Transformo la lista en un diccionario */
-
-			cb(packages);
-		} else {
-			read_repo_files(next_files, cb, next_package_list);
-		}
+		cb(package_list, filename);
 	}
 
 	function gunzip(error, data) {
-		zlib.gunzip(data, read_file);
+		zlib.gunzip(data, parse_file);
 	}
 
-	fs.readFile(file, gunzip);
+	fs.readFile(filename, gunzip);
+}
+
+function repo_get(repo, distro, package) {
+	var distro_repo;
+
+	repo_check_news(repo);
+
+	distro_repo = repo[distro] || {};
+
+	return distro_repo[package];
+}
+
+function repo_check_news(repo) {
+	var lastread = repo.watch.reduce(Math.max, repo.watch[0]);
+	var new_content = repo.contents.lastfold < lastread;
+
+	function divide_distros(content, watch) {
+		var distro = watch.distro;
+
+		if(content[distro]) {
+			content[distro] = content[distro].concat(watch.content);
+		} else {
+			content[distro_repo] = watch.content;
+		}
+
+		return content;
+	}
+
+	function create_distro_dictionary(distro, packages) {
+		return packages.reduce(fold_packages, {});
+	}
+
+	if(new_content) {
+		var distros;
+
+		distros = repo.watches.reduce(divide_distros, {}); /* Genero un mapa { <distro> => [paquetes] } */
+		repo.contents = utils.object_map(distros, create_distro_dictionary); /* Genero un mapa { <distro> => { <paquete> => {contenidos} } } */
+		repo.contents.lastfold = Date.now();
+	}
+}
+
+function init_repo(search_repo_files_cmdline, cb) {
+	var cmdline = search_repo_files_cmdline;
+
+	function exec_search_files(error, stdout, stderr) {
+		var files = stdout
+			.toString()
+			.replace(/\n$/, '') /* Vuelo el salto de línea final */
+			.split('\n');
+		var repo = init_parser(files);
+
+		cb(repo);
+	}
+
+	exec(cmdline, exec_search_files);
+}
+
+function init_binaries(cb) {
+	var cmdline = config.reprepro.search_package_files;
+
+	init_repo(cmdline, cb);
+}
+
+function init_sources(cb) {
+	var cmdline = config.reprepro.search_source_files;
+
+	init_repo(cmdline, cb);
 }
 
 function parse_packages(text, component) {
@@ -256,12 +255,13 @@ FIELD['Build-Depends'] = parse_depends;
 FIELD['Build-Depends-Indep'] = parse_depends;
 
 module.exports = {
-	get_package: get_package,
-	get_source: get_source,
-	read_binaries: read_binaries,
-	read_sources: read_sources,
+	init_parser: init_parser,
+	read_file: read_file,
+	repo_get: repo_get,
+	repo_check_news: repo_check_news,
+	init_binaries: init_binaries,
+	init_sources: init_sources,
 	parse_packages: parse_packages,
-	fold_packages: fold_packages,
 	parse_depends: parse_depends,
 	parse_description: parse_description
 };
