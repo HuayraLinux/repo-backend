@@ -18,7 +18,7 @@ function init_parser(files) {
 
 	function watch_file(filename) {
 		var filewatch;
-		var distro_regex = /(\/[^/]+)\/[^/]+\/[^/]+\/[^/]+$/;
+		var distro_regex = /\/([^/]+)\/[^/]+\/[^/]+\/[^/]+$/;
 		var distro_match = distro_regex.exec(filename);
 		var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
 
