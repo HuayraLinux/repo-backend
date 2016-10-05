@@ -2,10 +2,15 @@
 var express = require('express');
 var exec = require('child_process').exec;
 var utils = require('./utils');
-var get_package = require('./debian_packages').get_package;
-var get_source = require('./debian_packages').get_source;
+var debian_packages = require('./debian_packages');
 var config = require('./config');
 var debug = require('./debug')('webapp');
+var repo = { binaries_loaded: false, sources_loaded: false };
+
+var format_map = utils.format_map;
+var object_map = utils.object_map;
+var object_values = utils.object_values;
+
 /* Variables */
 var app = express();
 
@@ -13,7 +18,7 @@ function sanitize_input(req) {
 	function strip_illegal_chars(str) {
 		return str.replace(/[^a-z0-9-+.]/g, '');
 	}
-	return utils.object_map(req, strip_illegal_chars);
+	return object_map(req, strip_illegal_chars);
 }
 
 /*
@@ -37,11 +42,11 @@ function sanitize_input(req) {
  */
 app.get('/packages/:package', function get_package_versions(req, res) {
 	var params = sanitize_input(req.params);
-	var cmdline = utils.format_map(config.reprepro.package_versions, req.params);
+	var cmdline = format_map(config.reprepro.package_versions, req.params);
 
 	debug(req.method, req.url);
 
-	exec(cmdline, function exec_package_versions(error, stdout, stderr) {
+	exec(cmdline, function exec_package_versions(execerror, stdout, stderr) {
 		var salida = stdout
 			.toString()
 			.replace(/ /g, '')   /* Quito todos los espacios  */
@@ -90,56 +95,84 @@ app.get('/packages/:distro/:package', function get_package_info(req, res) {
 	var params = sanitize_input(req.params);
 	var distro = params.distro;
 	var package_name = params.package;
+	var package;
+	var error;
 
 	debug(req.method, req.url);
 
-	function send(package) {
-		if(package === undefined) {
-			var error = {
-				code: 404,
-				message: 'No se encontró el paquete binario \'' + package_name + '\' en la distro \'' + distro + '\'',
-				params: params
-			};
+	if(repo.binaries_loaded === false) {
+		error = {
+			code: 500,
+			message: 'El servicio no terminó de inicializarse, intente en unos minutos',
+			params: params
+		};
 
-			res.status(404);
-			res.send(error);
-			debug('NOT-FOUND:', req.method, req.url, error.message);
+		res.status(500);
+		res.send(error);
+		debug('NOT-INITIALIZED', req.method, req.url, error.message);
 
-			return;
-		}
-
-		res.send(package);
+		return;
 	}
 
-	get_package(distro, package_name, send);
+	package = repo.binaries.get(distro, package_name);
+
+	if(package === undefined) {
+		error = {
+			code: 404,
+			message: 'No se encontró el paquete binario \'' + package_name + '\' en la distro \'' + distro + '\'',
+			params: params
+		};
+
+		res.status(404);
+		res.send(error);
+		debug('NOT-FOUND:', req.method, req.url, error.message);
+
+		return;
+	}
+
+	res.send(package);
 });
 
 app.get('/sources/:distro/:package', function get_source_info(req, res) {
 	var params = sanitize_input(req.params);
 	var distro = params.distro;
 	var package_name = params.package;
+	var package;
+	var error;
 
 	debug(req.method, req.url);
 
-	function send(package) {
-		if(package === undefined) {
-			var error = {
-				code: 404,
-				message: 'No se encontró el paquete source \'' + package_name + '\' en la distro \'' + distro + '\'',
-				params: params
-			};
+	if(repo.sources_loaded === false) {
+		error = {
+			code: 500,
+			message: 'El servicio no terminó de inicializarse, intente en unos minutos',
+			params: params
+		};
 
-			res.status(404);
-			res.send(error);
-			debug('NOT-FOUND:', req.method, req.url, error.message);
+		res.status(500);
+		res.send(error);
+		debug('NOT-INITIALIZED', req.method, req.url, error.message);
 
-			return;
-		}
-
-		res.send(package);
+		return;
 	}
 
-	get_source(distro, package_name, send);
+	package = repo.sources.get(distro, package_name);
+
+	if(package === undefined) {
+		error = {
+			code: 404,
+			message: 'No se encontró el paquete source \'' + package_name + '\' en la distro \'' + distro + '\'',
+			params: params
+		};
+
+		res.status(404);
+		res.send(error);
+		debug('NOT-FOUND:', req.method, req.url, error.message);
+
+		return;
+	}
+
+	res.send(package);
 });
 
 app.get('/distributions', function get_distro_list(req, res) {
@@ -175,91 +208,79 @@ app.get('/distributions', function get_distro_list(req, res) {
 
 app.get('/distributions/:distro/packages', function get_distro_packages(req, res) {
 	var params = sanitize_input(req.params);
-	var cmdline = utils.format_map(config.reprepro.distro_packages, params);
+	var packages = repo.binaries.get_distro(params.distro);
+	var sources = repo.sources.get_distro(params.distro);
+	var package_list = object_values(packages);
+
+	function extract_data(package) {
+		var versions = package.versions.map(extract_data_versions);
+		var source = sources[package.Package];
+
+		if(source) {
+			var source_versions = source.versions.map(extract_data_versions);
+
+			versions = versions.concat(source_versions);
+		}
+
+		return {
+			Package: package.Package,
+			Component: package.Component,
+			versions: versions
+		};
+	}
+
+	function extract_data_versions(version) {
+		return {
+			Version: version.Version,
+			Architecture: version.Architecture
+		};
+	}
 
 	debug(req.method, req.url);
 
-	exec(cmdline, function exec_distro_packages(error, stdout, stderr) {
-		var salida = stdout
-			.toString()
-			.replace(/\n$/g, ''); /* Quito el salto de línea final */
-		var packages;
-		var package_list;
+	/* Si la salida es vacía no se encontró el paquete */
+	if(Object.keys(packages).length === 0) {
+		var error = {
+			code: 404,
+			message: 'No existe la distribución \'' + params.distro + '\'',
+			params: params,
+			stderr: stderr.toString()
+		};
 
-		function add_package(text) {
-			var package = {};
-			var data = text.split(': ');
+		res.status(404);
+		res.send(error);
+		debug('NOT-FOUND:', req.method, req.url, error.message);
 
-			function add_repo_data(text, index) {
-				var FIELDS = ['distro', 'component', 'arch'];
-				package[FIELDS[index]] = text;
-				return package;
-			}
+		return;
+	}
 
-			function add_package_data(text, index) {
-				var FIELDS = ['package', 'version'];
-				package[FIELDS[index]] = text;
-				return package;
-			}
-
-			data[0]
-				.replace(/^u\|/, '') /* Quito la marca de udeb porque no la usamos */
-				.split('|')
-				.forEach(add_repo_data);
-			data[1]
-				.split(' ')
-				.forEach(add_package_data);
-
-			return package;
-		}
-
-		function fold_packages(packages, package) {
-			var name = package.package;
-			var version = {
-				arch: package.arch,
-				version: package.version
-			};
-
-			if(packages[name]) {
-				packages[name].versions.push(version);
-			} else {
-				packages[name] = {
-					package: name,
-					distro: package.distro,
-					component: package.component,
-					versions: [version]
-				};
-			}
-			return packages;
-		}
-
-		/* Si la salida es vacía no se encontró el paquete */
-		if(salida === '') {
-			var error = {
-				code: 404,
-				message: 'No existe la distribución \'' + params.distro + '\'',
-				params: params,
-				stderr: stderr.toString()
-			};
-
-			res.status(404);
-			res.send(error);
-			debug('NOT-FOUND:', req.method, req.url, error.message);
-
-			return;
-		}
-
-		packages = salida
-			.split('\n')
-			.map(add_package)
-			.reduce(fold_packages, {});
-
-		package_list = utils.object_values(packages);
-
-		res.send(package_list);
-	});
+	res.send(package_list.map(extract_data));
 });
 
 app.listen(config.API_PORT, function start_server() {
   console.log('Example app listening on port', config.API_PORT);
 });
+
+
+function load_packages() {
+	function binaries_loaded(binaries) {
+		repo.binaries_loaded = true;
+		repo.binaries = binaries;
+
+		debug('Cargados los binarios');
+	}
+
+	function sources_loaded(sources) {
+		repo.sources_loaded = true;
+		repo.sources = sources;
+
+		debug('Cargados los sources');
+	}
+
+	debian_packages.init_binaries(binaries_loaded);
+	debian_packages.init_sources(sources_loaded);
+
+	debug('Cargando binarios y sources');
+}
+
+load_packages();
