@@ -98,10 +98,12 @@ function repo_get_distro(repo, distro) {
 }
 
 function repo_check_news(repo) {
-	var lastread = repo.watches
-		.map(get_field('lastread'))
-		.reduce(Math.max);
-	var new_content = repo.contents.lastfold < lastread;
+	var lastread;
+	var new_content;
+
+	function max(a,b) {
+		return Math.max(a,b); /* Lo necesito para poder hacer el reduce, ya que el callback de reduce tiene más argumentos */
+	}
 
 	function divide_distros(content, watch) {
 		var distro = watch.distro;
@@ -119,6 +121,11 @@ function repo_check_news(repo) {
 		packages = packages || []; /* Si por alguna razón no hay packages hago un array vació en lugar de undefined */
 		return packages.reduce(fold_packages, {});
 	}
+
+	lastread =  = repo.watches
+		.map(get_field('lastread'))
+		.reduce(max);
+	new_content = repo.contents.lastfold < lastread;
 
 	if(new_content) {
 		var distros;
