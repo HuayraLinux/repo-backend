@@ -243,8 +243,7 @@ app.get('/distributions/:distro/packages', function get_distro_packages(req, res
 		var error = {
 			code: 404,
 			message: 'No existe la distribución \'' + params.distro + '\'',
-			params: params,
-			stderr: stderr.toString()
+			params: params
 		};
 
 		res.status(404);
