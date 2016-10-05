@@ -14,7 +14,6 @@ config['reprepro'] = {
 //config['reprepro'] = {
 //	package_versions: 'reprepro ls "<package>"',
 // 	distro_list: 'cat ' + config.REPREPRO_BASE_DIR + '/conf/distributions',
-// 	distro_packages: 'reprepro list "<distro>"',
 //	search_package_files: 'find "' + config.REPO_DISTS_DIR + '" -iname Packages.gz',
 //	search_source_files: 'find "' + config.REPO_DISTS_DIR + '" -iname Sources.gz'
 //};
