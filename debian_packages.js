@@ -33,6 +33,8 @@ function init_parser(files) {
 			var distro_match = distro_regex.exec(filename);
 			var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
 
+			debug('Registrando la información de', filename)
+
 			filewatch.contents = contents;
 			filewatch.filename = filename;
 			filewatch.distro = distro;
@@ -121,7 +123,7 @@ function repo_check_news(repo) {
 	if(new_content) {
 		var distros;
 
-		debug('Cargando contenido nuevo de los archivos leídos');
+		debug('Unificando los datos de cada archivo');
 
 		distros = repo.watches.reduce(divide_distros, {}); /* Genero un mapa { <distro> => [paquetes] } */
 		repo.contents = utils.object_map(distros, create_distro_dictionary); /* Genero un mapa { <distro> => { <paquete> => {contenidos} } } */
