@@ -62,7 +62,7 @@ function init_parser(files) {
 
 function read_file(filename, cb) {
 	function parse_file(error, data) {
-		var component_match = /(\/[^/]+)\/[^/]+\/[^/]+$/.exec(filename); /* Matcheo el directorio correspondiente al componente */
+		var component_match = /\/([^/]+)\/[^/]+\/[^/]+$/.exec(filename); /* Matcheo el directorio correspondiente al componente */
 		var component = component_match && component_match[1] ? component_match[1] : 'unknown'; /* Si no matchié algo con sentido no se cuál es el componente */
 		var packages_text = data.toString();
 		var package_list = parse_packages(packages_text, component); /* Parseo este archivo */
