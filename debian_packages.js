@@ -8,6 +8,7 @@ var debug = require('./debug')(__filename);
 
 var format = utils.format_map;
 var regex_fold = utils.regex_fold;
+var get_field = utils.get_field;
 
 /* Diccionario para parsear fields específicos */
 var FIELD = {};
@@ -15,16 +16,15 @@ var FIELD = {};
 function init_parser(files) {
 	var repo = {};
 
-	function watch_file(file) {
+	function watch_file(filename) {
 		var filewatch;
 		var distro_regex = /(\/[^/]+)\/[^/]+\/[^/]+\/[^/]+$/;
-		var distro_match = distro_regex.exec(file);
+		var distro_match = distro_regex.exec(filename);
 		var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
 
-		function read_to_repo(event, filename) {
-			filename = filename || file;
+		function read_to_repo(event) {
 
-			debug('El archivo', filename, 'se ha modificado');
+			debug('El archivo', filename, 'se ha modificado', '[event:', event, ']');
 
 			read_file(filename, save_to_repo);
 		}
@@ -40,18 +40,22 @@ function init_parser(files) {
 		}
 
 		filewatch = {
-			contents: { lastfold:0 },
-			filename: file,
+			contents: {},
+			filename: filename,
 			distro: distro,
 			lastread: 0,
-			watch: fs.watch(file, read_to_repo)
+			watch: fs.watch(filename, read_to_repo)
 		};
+
+		filewatch.watch.emit('change', 'load', filename); /* Emito el evento de cargar el archivo */
 
 		return filewatch;
 	}
 
 	repo.watches = files.map(watch_file);
 	repo.get = repo_get.bind(null, repo);
+	repo.get_distro = repo_get_distro.bind(null, repo);
+	repo.contents = { lastfold: 0 };
 
 	return repo;
 }
@@ -70,6 +74,8 @@ function read_file(filename, cb) {
 		zlib.gunzip(data, parse_file);
 	}
 
+	debug('Leyendo el archivo', filename)
+
 	fs.readFile(filename, gunzip);
 }
 
@@ -78,28 +84,37 @@ function repo_get(repo, distro, package) {
 
 	repo_check_news(repo);
 
-	distro_repo = repo[distro] || {};
+	distro_repo = repo.contents[distro] || {};
 
 	return distro_repo[package];
 }
 
+function repo_get_distro(repo, distro) {
+	repo_check_news(repo);
+
+	return repo.contents[distro];
+}
+
 function repo_check_news(repo) {
-	var lastread = repo.watch.reduce(Math.max, repo.watch[0]);
+	var lastread = repo.watches
+		.map(get_field('lastread'))
+		.reduce(Math.max);
 	var new_content = repo.contents.lastfold < lastread;
 
 	function divide_distros(content, watch) {
 		var distro = watch.distro;
 
 		if(content[distro]) {
-			content[distro] = content[distro].concat(watch.content);
+			content[distro] = content[distro].concat(watch.contents);
 		} else {
-			content[distro_repo] = watch.content;
+			content[distro] = watch.contents;
 		}
 
 		return content;
 	}
 
-	function create_distro_dictionary(distro, packages) {
+	function create_distro_dictionary(packages) {
+		packages = packages || []; /* Si por alguna razón no hay packages hago un array vació en lugar de undefined */
 		return packages.reduce(fold_packages, {});
 	}
 
@@ -118,7 +133,7 @@ function init_repo(search_repo_files_cmdline, cb) {
 	function exec_search_files(error, stdout, stderr) {
 		var files = stdout
 			.toString()
-			.replace(/\n$/, '') /* Vuelo el salto de línea final */
+			.replace(/\n+$/, '') /* Vuelo el salto de línea final */
 			.split('\n');
 		var repo = init_parser(files);
 
@@ -258,6 +273,7 @@ module.exports = {
 	init_parser: init_parser,
 	read_file: read_file,
 	repo_get: repo_get,
+	repo_get_distro: repo_get_distro,
 	repo_check_news: repo_check_news,
 	init_binaries: init_binaries,
 	init_sources: init_sources,

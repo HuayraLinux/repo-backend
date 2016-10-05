@@ -7,6 +7,10 @@ var config = require('./config');
 var debug = require('./debug')('webapp');
 var repo = { binaries_loaded: false, sources_loaded: false };
 
+var format_map = utils.format_map;
+var object_map = utils.object_map;
+var object_values = utils.object_values;
+
 /* Variables */
 var app = express();
 
@@ -14,7 +18,7 @@ function sanitize_input(req) {
 	function strip_illegal_chars(str) {
 		return str.replace(/[^a-z0-9-+.]/g, '');
 	}
-	return utils.object_map(req, strip_illegal_chars);
+	return object_map(req, strip_illegal_chars);
 }
 
 /*
@@ -38,7 +42,7 @@ function sanitize_input(req) {
  */
 app.get('/packages/:package', function get_package_versions(req, res) {
 	var params = sanitize_input(req.params);
-	var cmdline = utils.format_map(config.reprepro.package_versions, req.params);
+	var cmdline = format_map(config.reprepro.package_versions, req.params);
 
 	debug(req.method, req.url);
 
@@ -204,33 +208,29 @@ app.get('/distributions', function get_distro_list(req, res) {
 
 app.get('/distributions/:distro/packages', function get_distro_packages(req, res) {
 	var params = sanitize_input(req.params);
-	var distro;
+	var packages = repo.binaries.get_distro(params.distro);
+	/* var sources = repo.sources.get_distro(params.distro); */
+	var package_list = object_values(packages);
 
 	debug(req.method, req.url);
 
-	function list_packages(packages) {
-		/* Si la salida es vacía no se encontró el paquete */
-		if(Object.keys(packages).length === 0) {
-			var error = {
-				code: 404,
-				message: 'No existe la distribución \'' + params.distro + '\'',
-				params: params,
-				stderr: stderr.toString()
-			};
+	/* Si la salida es vacía no se encontró el paquete */
+	if(Object.keys(packages).length === 0) {
+		var error = {
+			code: 404,
+			message: 'No existe la distribución \'' + params.distro + '\'',
+			params: params,
+			stderr: stderr.toString()
+		};
 
-			res.status(404);
-			res.send(error);
-			debug('NOT-FOUND:', req.method, req.url, error.message);
+		res.status(404);
+		res.send(error);
+		debug('NOT-FOUND:', req.method, req.url, error.message);
 
-			return;
-		}
-
-		res.send(package_list);
+		return;
 	}
 
-	distro = debian_packages.get_distro(distro);
-	//distro.sources.map
-	/* ERROR: COMPLETAR */
+	res.send(package_list);
 });
 
 app.listen(config.API_PORT, function start_server() {
