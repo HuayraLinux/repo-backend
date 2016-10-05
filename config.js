@@ -1,6 +1,6 @@
 config = {};
 
-config['API_PORT'] = 8080;
+config['API_PORT'] = 8081;
 config['DEBUG'] = true;
 config['LOG_EXEC_OUTPUT'] = false; /* No tiene efecto aún */
 config['REPREPRO_BASE_DIR'] = process.env['REPREPRO_BASE_DIR'];
