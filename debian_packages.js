@@ -92,7 +92,7 @@ function repo_get(repo, distro, package) {
 function repo_get_distro(repo, distro) {
 	repo_check_news(repo);
 
-	return repo.contents[distro];
+	return repo.contents[distro] || {};
 }
 
 function repo_check_news(repo) {
