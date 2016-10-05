@@ -33,7 +33,7 @@ function init_parser(files) {
 			var distro_match = distro_regex.exec(filename);
 			var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
 
-			debug('Registrando la información de', filename)
+			debug('Registrando la información de', filename);
 
 			filewatch.contents = contents;
 			filewatch.filename = filename;
@@ -122,7 +122,7 @@ function repo_check_news(repo) {
 		return packages.reduce(fold_packages, {});
 	}
 
-	lastread =  = repo.watches
+	lastread = repo.watches
 		.map(get_field('lastread'))
 		.reduce(max);
 	new_content = repo.contents.lastfold < lastread;
