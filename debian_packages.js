@@ -74,7 +74,7 @@ function read_file(filename, cb) {
 		zlib.gunzip(data, parse_file);
 	}
 
-	debug('Leyendo el archivo', filename)
+	debug('Leyendo el archivo', filename);
 
 	fs.readFile(filename, gunzip);
 }

@@ -209,8 +209,32 @@ app.get('/distributions', function get_distro_list(req, res) {
 app.get('/distributions/:distro/packages', function get_distro_packages(req, res) {
 	var params = sanitize_input(req.params);
 	var packages = repo.binaries.get_distro(params.distro);
-	/* var sources = repo.sources.get_distro(params.distro); */
+	var sources = repo.sources.get_distro(params.distro);
 	var package_list = object_values(packages);
+
+	function extract_data(package) {
+		var versions = package.versions.map(extract_data_versions);
+		var source = sources[package.Package];
+
+		if(source) {
+			var source_versions = source.versions.map(extract_data_versions);
+
+			versions = versions.concat(source_versions);
+		}
+
+		return {
+			Package: package.Package,
+			Component: package.Component,
+			versions: versions
+		};
+	}
+
+	function extract_data_versions(version) {
+		return {
+			Version: version.Version,
+			Architecture: version.Architecture
+		};
+	}
 
 	debug(req.method, req.url);
 
@@ -230,7 +254,7 @@ app.get('/distributions/:distro/packages', function get_distro_packages(req, res
 		return;
 	}
 
-	res.send(package_list);
+	res.send(package_list.map(extract_data));
 });
 
 app.listen(config.API_PORT, function start_server() {

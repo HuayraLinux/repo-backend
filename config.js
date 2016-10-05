@@ -8,7 +8,6 @@ config['REPO_DISTS_DIR'] = config.REPREPRO_BASE_DIR + '/dists';
 config['reprepro'] = {
 	package_versions: 'cat examples/package_versions',
 	distro_list: 'cat examples/distro_list',
-	distro_packages: 'cat examples/distro_packages',
 	search_package_files: 'cat examples/repo_package_files',
 	search_source_files: 'cat examples/repo_source_files'
 };
