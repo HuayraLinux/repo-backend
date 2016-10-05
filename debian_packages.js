@@ -121,6 +121,8 @@ function repo_check_news(repo) {
 	if(new_content) {
 		var distros;
 
+		debug('Cargando contenido nuevo de los archivos leídos');
+
 		distros = repo.watches.reduce(divide_distros, {}); /* Genero un mapa { <distro> => [paquetes] } */
 		repo.contents = utils.object_map(distros, create_distro_dictionary); /* Genero un mapa { <distro> => { <paquete> => {contenidos} } } */
 		repo.contents.lastfold = Date.now();
