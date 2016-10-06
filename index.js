@@ -25,7 +25,7 @@ function sanitize_input(req) {
 
 /* Agrego los headers de CORS */
 app.use(function add_cors_headers(req, res, next) {
-	res.header("Access-Control-Allow-Origin", "huayralinux.github.io");
+	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	next();
 });
