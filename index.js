@@ -6,6 +6,7 @@ var util = require('util');
 var debian_packages = require('./debian_packages');
 var config = require('./config');
 var debug = require('./debug')('webapp');
+var node_error = require('./debug')('NODE-ERROR');
 var repo = { binaries_loaded: false, sources_loaded: false };
 
 var format = util.format;
@@ -22,6 +23,11 @@ function sanitize_input(req) {
 	}
 	return object_map(req, strip_illegal_chars);
 }
+
+process.on('uncaughtException', function evitar_que_explote_todo(error) {
+	node_error('Se produjo una excepción que no fué capturada (casi cierra el proceso)');
+	console.log(error.stack || error.message);
+});
 
 /* Agrego los headers de CORS */
 app.use(function add_cors_headers(req, res, next) {
