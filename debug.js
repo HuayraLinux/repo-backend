@@ -18,7 +18,7 @@ if(enabled) {
 				var f = caller.functionName;
 				var file = basename(caller.fileName); /* Muestro únicamente el nombre del archivo */
 				var line = caller.lineNumber;
-				var args_format = args[1];
+				var args_format = args[0];
 				var args_args = args.slice(1);
 				var string = format(log_format, now, namespace, f, file, line, args_format);
 

@@ -23,8 +23,9 @@ function init_parser(files) {
 		var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
 
 		function read_to_repo(event) {
+			var usable_filename = filename.replace(config.REPO_DISTS_DIR, '');
 
-			debug('El archivo [%s] se ha modificado (event: %s)', filename, event);
+			debug('El archivo [%s] se ha modificado (event: %s)', usable_filename, event);
 
 			read_file(filename, save_to_repo);
 		}
