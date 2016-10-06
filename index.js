@@ -23,6 +23,13 @@ function sanitize_input(req) {
 	return object_map(req, strip_illegal_chars);
 }
 
+/* Agrego los headers de CORS */
+app.use(function add_cors_headers(req, res, next) {
+	res.header("Access-Control-Allow-Origin", "huayralinux.github.io");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
+});
+
 /*
  * Salida esperada:
  *
