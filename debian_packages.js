@@ -4,7 +4,7 @@ var zlib = require('zlib');
 var exec = require('child_process').exec;
 var config = require('./config');
 var utils = require('./utils');
-var debug = require('./debug')(__filename);
+var debug = require('./debug')('debian_parsing');
 
 var format = utils.format_map;
 var regex_fold = utils.regex_fold;
@@ -24,7 +24,7 @@ function init_parser(files) {
 
 		function read_to_repo(event) {
 
-			debug('El archivo', filename, 'se ha modificado', '[event:', event, ']');
+			debug('El archivo [%s] se ha modificado (event: %s)', filename, event);
 
 			read_file(filename, save_to_repo);
 		}
@@ -33,7 +33,7 @@ function init_parser(files) {
 			var distro_match = distro_regex.exec(filename);
 			var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
 
-			debug('Registrando la información de', filename);
+			debug('Registrando la información de %s', filename);
 
 			filewatch.contents = contents;
 			filewatch.filename = filename;
@@ -76,7 +76,7 @@ function read_file(filename, cb) {
 		zlib.gunzip(data, parse_file);
 	}
 
-	debug('Leyendo el archivo', filename);
+	debug('Leyendo el archivo %s', filename);
 
 	fs.readFile(filename, gunzip);
 }
