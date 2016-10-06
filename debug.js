@@ -1,6 +1,7 @@
 var enabled = require('./config.js').DEBUG;
 var stack = require('stacktrace-js');
 var format = require('util').format;
+var basename = require('path').basename;
 
 function dummy() {
 }
@@ -15,7 +16,7 @@ if(enabled) {
 				var log_format = "[%s/%s/%s %s:%s] %s";
 				var caller = stack[1]; /* stack[0] es logger */
 				var f = caller.functionName;
-				var file = caller.fileName;
+				var file = basename(caller.fileName); /* Muestro únicamente el nombre del archivo */
 				var line = caller.lineNumber;
 				var args_format = args[1];
 				var args_args = args.slice(1);
