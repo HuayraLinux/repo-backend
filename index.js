@@ -2,11 +2,13 @@
 var express = require('express');
 var exec = require('child_process').exec;
 var utils = require('./utils');
+var util = require('util');
 var debian_packages = require('./debian_packages');
 var config = require('./config');
 var debug = require('./debug')('webapp');
 var repo = { binaries_loaded: false, sources_loaded: false };
 
+var format = util.format;
 var format_map = utils.format_map;
 var object_map = utils.object_map;
 var object_values = utils.object_values;
@@ -119,7 +121,7 @@ app.get('/packages/:distro/:package', function get_package_info(req, res) {
 	if(package === undefined) {
 		error = {
 			code: 404,
-			message: 'No se encontró el paquete binario \'' + package_name + '\' en la distro \'' + distro + '\'',
+			message: format('No se encontró el paquete binario \'%s\' en la distro \'%s\'', package_name, distro),
 			params: params
 		};
 
