@@ -313,5 +313,6 @@ module.exports = {
 	init_sources: init_sources,
 	parse_packages: parse_packages,
 	parse_depends: parse_depends,
-	parse_description: parse_description
+	parse_description: parse_description,
+	parse_binaries: parse_binaries
 };

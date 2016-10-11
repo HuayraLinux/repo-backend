@@ -242,7 +242,7 @@ function extract_data(package) {
 app.get('/distributions/:distro/packages', function get_distro_packages(req, res) {
 	var params = sanitize_input(req.params);
 	var packages = repo.binaries.get_distro(params.distro);
-	var package_list = bject_values(packages).map(extract_data);
+	var package_list = object_values(packages).map(extract_data);
 
 	debug(req.method, req.url);
 
