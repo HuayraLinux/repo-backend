@@ -286,6 +286,13 @@ function parse_description(text) {
 	};
 }
 
+function parse_binaries(text) {
+	return {
+		Text: text,
+		Binaries: text.split(', ')
+	};
+}
+
 FIELD.Depends = parse_depends;
 FIELD.Suggests = parse_depends;
 FIELD.Conflicts = parse_depends;
@@ -293,6 +300,8 @@ FIELD.Recomends = parse_depends;
 FIELD['Pre-Depends'] = parse_depends;
 FIELD['Build-Depends'] = parse_depends;
 FIELD['Build-Depends-Indep'] = parse_depends;
+FIELD.Description = parse_description;
+FIELD.Binaries = parse_binaries;
 
 module.exports = {
 	init_parser: init_parser,

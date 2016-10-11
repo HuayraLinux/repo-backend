@@ -221,28 +221,28 @@ app.get('/distributions', function get_distro_list(req, res) {
 	});
 });
 
-app.get('/distributions/:distro/packages', function get_distro_packages(req, res) {
-	var params = sanitize_input(req.params);
-	var packages = repo.binaries.get_distro(params.distro);
-	var package_list;
+function extract_data(package) {
 
-	function extract_binary_data(package) {
-		var versions = package.versions.map(extract_binary_versions);
-		var name = package.Package;
-
-		return {
-			Package: package.Package,
-			Component: package.Component,
-			versions: versions
-		};
-	}
-
-	function extract_binary_versions(version) {
+	function extract_versions(version) {
 		return {
 			Version: version.Version,
 			Architecture: version.Architecture
 		};
 	}
+
+	return {
+		Package: package.Package,
+		Description: package.Description['Short-Description'],
+		Component: package.Component,
+		versions: package.versions.map(extract_source_versions)
+	};
+}
+
+
+app.get('/distributions/:distro/packages', function get_distro_packages(req, res) {
+	var params = sanitize_input(req.params);
+	var packages = repo.binaries.get_distro(params.distro);
+	var package_list = bject_values(packages).map(extract_data);
 
 	debug(req.method, req.url);
 
@@ -260,8 +260,6 @@ app.get('/distributions/:distro/packages', function get_distro_packages(req, res
 
 		return;
 	}
-
-	package_list = object_values(packages).map(extract_binary_data);
 
 	res.send(package_list);
 });
@@ -269,25 +267,7 @@ app.get('/distributions/:distro/packages', function get_distro_packages(req, res
 app.get('/distributions/:distro/sources', function get_distro_sources(req, res) {
 	var params = sanitize_input(req.params);
 	var packages = repo.sources.get_distro(params.distro);
-	var package_list;
-
-	function extract_source_data(package) {
-		var versions = package.versions.map(extract_source_versions);
-		var name = package.Package;
-
-		return {
-			Package: package.Package,
-			Component: package.Component,
-			versions: versions
-		};
-	}
-
-	function extract_source_versions(version) {
-		return {
-			Version: version.Version,
-			Architecture: version.Architecture
-		};
-	}
+	var package_list = object_values(packages).map(extract_data);
 
 	debug(req.method, req.url);
 
@@ -305,8 +285,6 @@ app.get('/distributions/:distro/sources', function get_distro_sources(req, res) 
 
 		return;
 	}
-
-	package_list = object_values(packages).map(extract_source_data);
 
 	res.send(package_list);
 });
