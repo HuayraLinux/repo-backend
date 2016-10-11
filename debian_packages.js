@@ -286,6 +286,7 @@ function parse_description(text) {
 	};
 }
 
+FIELD.Description = parse_description;
 FIELD.Depends = parse_depends;
 FIELD.Suggests = parse_depends;
 FIELD.Conflicts = parse_depends;
