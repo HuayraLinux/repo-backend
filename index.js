@@ -234,7 +234,7 @@ function extract_data(package) {
 		Package: package.Package,
 		Description: package.Description['Short-Description'],
 		Component: package.Component,
-		versions: package.versions.map(extract_source_versions)
+		versions: package.versions.map(extract_versions)
 	};
 }
 
