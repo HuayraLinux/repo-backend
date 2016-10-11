@@ -203,7 +203,13 @@ function parse_packages(text, component) {
 }
 
 function fold_packages(packages, package) {
+	/*
+	 * Algo feo que hago acá es usar keys en un array de JS,
+	 * pero al encodearlo a JSON desaparecen, entonces
+	 *                   ¯\_(ツ)_/¯
+	 */
 	var name = package.Package;
+	var arch = package.Architecture
 	var version = {
 		Architecture: package.Architecture,
 		Version: package.Version,
@@ -213,10 +219,15 @@ function fold_packages(packages, package) {
 	};
 
 	if(packages[name]) {
-		packages[name].versions.push(version);
+		/* Un paquete all va a aparecer en varios lugares, (o podría existir en varios componentes) */
+		if(packages[name].versions[arch] === undefined) {
+			packages[name].versions.[arch] = version;
+			packages[name].versions.push(version);
+		}
 	} else {
 		packages[name] = package;
 		packages[name].versions = [version];
+		packages[name].versions[arch] = version;
 
 		Object.keys(version).forEach(function unset_key(key) {
 			delete packages[name][key];
