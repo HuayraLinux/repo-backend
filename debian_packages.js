@@ -175,13 +175,15 @@ function parse_packages(text, component) {
 		var package;
 
 		function add_field(package, field_match) {
-			var field = field_match[0].split(': ');
+			var field = field_match[0].split(':');
 			var fieldname = field[0];
 
 			package[fieldname] = field
 				.slice(1) /* Quito el fieldname */
-				.join(': ') /* junto todo */
-				.replace(/^ /mg, '');
+				.join(':') /* junto todo */
+				.replace(/^ /mg, '') /* quito prefijos inútiles */
+				.replace(/^\n/g, '');
+
 
 			/* Si hay una función para parsear este field en particular la uso */
 			if(FIELD[fieldname] !== undefined) {
@@ -209,7 +211,7 @@ function fold_packages(packages, package) {
 	 *                   ¯\_(ツ)_/¯
 	 */
 	var name = package.Package;
-	var arch = package.Architecture
+	var arch = package.Architecture;
 	var version = {
 		Architecture: package.Architecture,
 		Version: package.Version,
