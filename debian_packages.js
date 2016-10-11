@@ -286,11 +286,18 @@ function parse_description(text) {
 	};
 }
 
-function split_newlines(text) {
+function split_commas(text) {
 	return {
 		Text: text,
 		Binary: text.split(', ')
 	};
+}
+
+function split_newlines(text) {
+	return {
+		Text: text,
+		Binary: text.split('\n')
+	};	
 }
 
 FIELD.Depends = parse_depends;
@@ -301,7 +308,7 @@ FIELD['Pre-Depends'] = parse_depends;
 FIELD['Build-Depends'] = parse_depends;
 FIELD['Build-Depends-Indep'] = parse_depends;
 FIELD.Description = parse_description;
-FIELD.Binary = split_newlines;
+FIELD.Binary = split_commas;
 FIELD['Package-List'] = split_newlines;
 FIELD['Checksums-Sha1'] = split_newlines;
 FIELD['Checksums-Sha256'] = split_newlines;
@@ -318,5 +325,6 @@ module.exports = {
 	parse_packages: parse_packages,
 	parse_depends: parse_depends,
 	parse_description: parse_description,
+	split_commas: split_commas,
 	split_newlines: split_newlines
 };
