@@ -221,8 +221,8 @@ function fold_packages(packages, package) {
 	if(packages[name]) {
 		/* Un paquete all va a aparecer en varios lugares, (o podría existir en varios componentes) */
 		if(packages[name].versions[arch] === undefined) {
-			packages[name].versions.[arch] = version;
 			packages[name].versions.push(version);
+			packages[name].versions[arch] = version;
 		}
 	} else {
 		packages[name] = package;
