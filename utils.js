@@ -25,14 +25,24 @@ module.exports.object_map = function object_map(obj, f) {
 		rval[key] = f(obj[key], key);
 	}
 	return rval;
-}
-;
+};
+
+module.exports.object_flatmap = function object_flatmap(obj, f) {
+	var rval = [];
+
+	for(var key in obj) {
+		rval.push(f(obj[key], key));
+	}
+	return rval;
+};
+
 module.exports.regex_fold = function regex_fold(regex, string, f, initial_value) {
-	var match;
+	var match = regex.exec(string);
 	var accumulator = initial_value;
 
-	while(match = regex.exec(string)) {
+	while(match) {
 		accumulator = f(accumulator, match);
+		match = regex.exec(string);
 	}
 	return accumulator;
 };
