@@ -272,7 +272,7 @@ app.get('/distributions/:distro/sources', function get_distro_sources(req, res) 
 	var package_list;
 
 	function extract_source_data(package) {
-		var versions = package.versions.map(extract_binary_versions);
+		var versions = package.versions.map(extract_source_versions);
 		var name = package.Package;
 
 		return {
@@ -306,7 +306,7 @@ app.get('/distributions/:distro/sources', function get_distro_sources(req, res) 
 		return;
 	}
 
-	package_list = object_values(packages).map(extract_binary_data);
+	package_list = object_values(packages).map(extract_source_data);
 
 	res.send(package_list);
 });
