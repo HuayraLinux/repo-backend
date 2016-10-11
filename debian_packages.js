@@ -289,7 +289,7 @@ function parse_description(text) {
 function parse_binaries(text) {
 	return {
 		Text: text,
-		Binaries: text.split(', ')
+		Binary: text.split(', ')
 	};
 }
 
@@ -301,7 +301,7 @@ FIELD['Pre-Depends'] = parse_depends;
 FIELD['Build-Depends'] = parse_depends;
 FIELD['Build-Depends-Indep'] = parse_depends;
 FIELD.Description = parse_description;
-FIELD.Binaries = parse_binaries;
+FIELD.Binary = parse_binaries;
 
 module.exports = {
 	init_parser: init_parser,
