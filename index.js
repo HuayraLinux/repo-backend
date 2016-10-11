@@ -224,18 +224,11 @@ app.get('/distributions', function get_distro_list(req, res) {
 app.get('/distributions/:distro/packages', function get_distro_packages(req, res) {
 	var params = sanitize_input(req.params);
 	var packages = repo.binaries.get_distro(params.distro);
-	var sources = repo.sources.get_distro(params.distro);
-	var package_list = object_values(packages);
+	var package_list;
 
-	function extract_data(package) {
-		var versions = package.versions.map(extract_data_versions);
-		var source = sources[package.Package];
-
-		if(source) {
-			var source_versions = source.versions.map(extract_data_versions);
-
-			versions = versions.concat(source_versions);
-		}
+	function extract_binary_data(package) {
+		var versions = package.versions.map(extract_binary_versions);
+		var name = package.Package;
 
 		return {
 			Package: package.Package,
@@ -244,7 +237,7 @@ app.get('/distributions/:distro/packages', function get_distro_packages(req, res
 		};
 	}
 
-	function extract_data_versions(version) {
+	function extract_binary_versions(version) {
 		return {
 			Version: version.Version,
 			Architecture: version.Architecture
@@ -268,7 +261,54 @@ app.get('/distributions/:distro/packages', function get_distro_packages(req, res
 		return;
 	}
 
-	res.send(package_list.map(extract_data));
+	package_list = object_values(packages).map(extract_binary_data);
+
+	res.send(package_list);
+});
+
+app.get('/distributions/:distro/sources', function get_distro_sources(req, res) {
+	var params = sanitize_input(req.params);
+	var packages = repo.sources.get_distro(params.distro);
+	var package_list;
+
+	function extract_source_data(package) {
+		var versions = package.versions.map(extract_binary_versions);
+		var name = package.Package;
+
+		return {
+			Package: package.Package,
+			Component: package.Component,
+			versions: versions
+		};
+	}
+
+	function extract_source_versions(version) {
+		return {
+			Version: version.Version,
+			Architecture: version.Architecture
+		};
+	}
+
+	debug(req.method, req.url);
+
+	/* Si la salida es vacía no se encontró el paquete */
+	if(Object.keys(packages).length === 0) {
+		var error = {
+			code: 404,
+			message: 'No existe la distribución \'' + params.distro + '\'',
+			params: params
+		};
+
+		res.status(404);
+		res.send(error);
+		debug('NOT-FOUND:', req.method, req.url, error.message);
+
+		return;
+	}
+
+	package_list = object_values(packages).map(extract_binary_data);
+
+	res.send(package_list);
 });
 
 app.listen(config.API_PORT, function start_server() {
