@@ -187,7 +187,7 @@ function parse_packages(text, component) {
 
 			/* Si hay una función para parsear este field en particular la uso */
 			if(FIELD[fieldname] !== undefined) {
-				package[fieldname] = FIELD[fieldname](package[fieldname]);
+				package[fieldname] = FIELD[fieldname](package[fieldname], fieldname);
 			}
 
 			return package;
@@ -286,18 +286,18 @@ function parse_description(text) {
 	};
 }
 
-function split_commas(text) {
-	return {
-		Text: text,
-		Binary: text.split(', ')
-	};
+function split_commas(text, fieldname) {
+	var rval = { Text: text };
+	rval[fieldname] = text.split(', ');
+
+	return rval;
 }
 
-function split_newlines(text) {
-	return {
-		Text: text,
-		Binary: text.split('\n')
-	};	
+function split_newlines(text, fieldname) {
+	var rval = { Text: text };
+	rval[fieldname] = text.split('\n');
+
+	return rval;
 }
 
 FIELD.Depends = parse_depends;
