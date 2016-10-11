@@ -286,7 +286,7 @@ function parse_description(text) {
 	};
 }
 
-function parse_binaries(text) {
+function split_newlines(text) {
 	return {
 		Text: text,
 		Binary: text.split(', ')
@@ -301,7 +301,11 @@ FIELD['Pre-Depends'] = parse_depends;
 FIELD['Build-Depends'] = parse_depends;
 FIELD['Build-Depends-Indep'] = parse_depends;
 FIELD.Description = parse_description;
-FIELD.Binary = parse_binaries;
+FIELD.Binary = split_newlines;
+FIELD['Package-List'] = split_newlines;
+FIELD['Checksums-Sha1'] = split_newlines;
+FIELD['Checksums-Sha256'] = split_newlines;
+FIELD['Files'] = split_newlines;
 
 module.exports = {
 	init_parser: init_parser,
@@ -314,5 +318,5 @@ module.exports = {
 	parse_packages: parse_packages,
 	parse_depends: parse_depends,
 	parse_description: parse_description,
-	parse_binaries: parse_binaries
+	split_newlines: split_newlines
 };
