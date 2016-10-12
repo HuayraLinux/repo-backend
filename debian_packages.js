@@ -250,6 +250,7 @@ function parse_depends(text) {
 			var matches = depend_text.map(function match_depend(alternative) {
 				return pattern.exec(alternative);
 			});
+			var alternatives = matches.slice(1);
 			var depend;
 
 			function build_depend(match) {
@@ -267,9 +268,10 @@ function parse_depends(text) {
 			}
 
 			depend = build_depend(matches[0]);
-			depend.Alternatives = matches
-				.slice(1)
-				.map(build_depend);
+
+			if(alternatives) {
+				depend.Alternatives = alternatives.map(build_depend);
+			}
 
 			return depend;
 		});
@@ -312,7 +314,7 @@ FIELD.Binary = split_commas;
 FIELD['Package-List'] = split_newlines;
 FIELD['Checksums-Sha1'] = split_newlines;
 FIELD['Checksums-Sha256'] = split_newlines;
-FIELD['Files'] = split_newlines;
+FIELD.Files = split_newlines;
 
 module.exports = {
 	init_parser: init_parser,
