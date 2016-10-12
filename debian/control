@@ -1,0 +1,16 @@
+Source: repo-backend
+Section: utils
+Priority: extra
+Maintainer: Fernando Toledo <ragnarok@docksud.com.ar>
+Build-Depends: debhelper (>= 9.0.0), npm (>= 1.4)
+Standards-Version: 3.9.6
+Homepage: https://github.com/HuayraLinux/repo-backend
+Vcs-Browser: https://github.com/HuayraLinux/repo-backend
+Vcs-Git: https://github.com/HuayraLinux/repo-backend.git
+
+Package: repo-backend
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}, node ( >= 0.10)
+Recommends: reprepro ( >= 4.12 )
+Description: API backend para navegador web de paquetes de Huayra
+ Servicio de API para browser de repositorio de paquetes de Huayra

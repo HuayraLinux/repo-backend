@@ -1,0 +1,59 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides: repo-backend
+# Required-Start:    $network $remote_fs $local_fs
+# Required-Stop:     $network $remote_fs $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: repo-backend API services
+# Description: repo-backend API services
+### END INIT INFO
+
+USER="repo"
+API_PORT="8080"
+DEBUG=false
+
+# Read configuration variable file if it is present
+[ -r /etc/default/repo-backend ] && . /etc/default/repo-backend
+
+PIDFILE=/var/run/re-backend/app.pid
+DAEMON=$(wich node)
+DAEMON_OPTS=/usr/share/repo-backend/index.php
+NAME=repo-backend
+
+. /lib/lsb/init-functions
+
+
+do_start() {
+	echo -n "Starting daemon: "$NAME
+	start-stop-daemon --start --background --make-pifdile --quiet --chuid $USER:$USER --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+    echo "."
+}
+
+do_stop() {
+    echo -n "Stopping daemon: "$NAME
+	start-stop-daemon --stop --quiet --chuid $USER:$USER --oknodo --pidfile $PIDFILE --remove-pidfile 
+    echo "."
+}
+
+case "$1" in
+  start)
+	do_start
+	;;
+  stop)
+	do_stop
+	;;
+  restart)
+    echo -n "Restarting daemon: "$NAME
+	do_stop
+	do_start
+	echo "."
+	;;
+
+  *)
+	echo "Usage: "$1" {start|stop|restart}"
+	exit 1
+esac
+
+exit 0
