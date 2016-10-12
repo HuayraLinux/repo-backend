@@ -44,7 +44,7 @@ case "$1" in
   stop)
 	do_stop
 	;;
-  restart)
+  restart|force-reload)
     echo -n "Restarting daemon: "$NAME
 	do_stop
 	do_start
