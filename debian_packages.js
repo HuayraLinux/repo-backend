@@ -269,7 +269,7 @@ function parse_depends(text) {
 
 			depend = build_depend(matches[0]);
 
-			if(alternatives) {
+			if(alternatives.length > 0) {
 				depend.Alternatives = alternatives.map(build_depend);
 			}
 
