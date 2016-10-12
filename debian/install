@@ -1,0 +1,4 @@
+*.js 				usr/share/repo-backend
+package.json		usr/share/repo-backend
+examples			usr/share/repo-backend
+node_modules        usr/share/repo-backend

@@ -27,7 +27,7 @@ module.exports.object_map = function object_map(obj, f) {
 	return rval;
 };
 
-module.exports.object_flatmap = function object_flatmap(obj, f) {
+module.exports.object_valuemap = function object_valuemap(obj, f) {
 	var rval = [];
 
 	for(var key in obj) {
@@ -55,8 +55,83 @@ module.exports.object_values = function object_values(obj) {
 	return Object.keys(obj).map(get_field);
 };
 
+module.exports.object_filter = function object_filter(obj, cb) {
+	var rval = {};
+
+	for(var key in obj) {
+		if(cb(obj[key], key)) {
+			rval[key] = obj[key];
+		}
+	}
+
+	return rval;
+};
+
+module.exports.object_merge = function object_merge(dest, orig) {
+	for(var key in orig) {
+		dest[key] = orig[key];
+	}
+
+	return dest;
+};
+
 module.exports.get_field = function get_field(field) {
 	return function getter(obj) {
 		return obj[field];
 	};
+};
+
+module.exports.Waiter = function Waiter(cb, cb_this, args) {
+	if(!(this instanceof Waiter)) {
+		return new Waiter(cb, cb_this, args);
+	}
+
+	if(cb) {
+		this.set_cb(cb, cb_this, args);
+	}
+
+	this._waits = [];
+};
+
+module.exports.Waiter.prototype = {
+	/* Returns a callback that waits */
+	wait: function wait() {
+		var self = this;
+		var wait = {
+			done: false,
+			called: function called(called) {
+				wait.done = true;
+				wait.arguments = arguments;
+
+				if(self.cb && self._waits.every(is_fullfiled)) {
+					self.cb(self._waits);
+				}
+			}
+		};
+
+		function is_fullfiled(wait) {
+			return wait.done;
+		}
+
+		this._waits.push(wait);
+
+		return wait.called;
+	},
+
+	set_cb: function set_cb(cb, cb_this, args) {
+
+		function is_fullfiled(wait) {
+			return wait.done;
+		}
+
+		if(cb_this || args) {
+			this.cb = cb.bind.apply(cb, [cb_this].concat(args));
+		} else {
+			this.cb = cb;
+		}
+
+		if(this._waits.every(is_fullfiled)) {
+			this.cb(this._waits);
+		}
+	}
 };

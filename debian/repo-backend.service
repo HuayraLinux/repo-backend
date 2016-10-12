@@ -1,0 +1,16 @@
+[Unit]
+Description=repo-backend API service
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/default/repo-backend
+WorkingDirectory=/usr/share/repo-backend
+ExecStart=/usr/bin/node index.js
+Restart=always
+RestartSec=20                       # Restart service after 20 seconds if node service crashes
+StandardOutput=syslog               # Output to syslog
+StandardError=syslog                # Output to syslog
+SyslogIdentifier=repo-backend
+
+[Install]
+WantedBy=multi-user.target
