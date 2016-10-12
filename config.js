@@ -5,6 +5,8 @@ config['DEBUG'] = true;
 config['LOG_EXEC_OUTPUT'] = false; /* No tiene efecto aún */
 config['REPREPRO_BASE_DIR'] = process.env['REPREPRO_BASE_DIR'];
 config['REPO_DISTS_DIR'] = config.REPREPRO_BASE_DIR + '/dists';
+/* En milisegundos */
+config['DISTRO_TTL'] = 10 * 1000;
 config['reprepro'] = {
 	package_versions: 'cat examples/package_versions',
 	distro_list: 'cat examples/distro_list',
