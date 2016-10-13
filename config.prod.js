@@ -10,7 +10,7 @@ config
 .config('LOG', true)
 .config('LOG_EXEC_OUTPUT', false) /* No tiene efecto aún */
 .config('REPREPRO_BASE_DIR')
-.config('REPO_DISTS_DIR', config.REPREPRO_BASE_DIR + '/dists').
+.config('REPO_DISTS_DIR', config.REPREPRO_BASE_DIR + '/dists')
 .config('PIDFILE');
 
 config.reprepro = {
