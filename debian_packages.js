@@ -9,11 +9,6 @@ var debug = require('./debug')('debian_parsing');
 var format = utils.format_map;
 var regex_fold = utils.regex_fold;
 var get_field = utils.get_field;
-var object_valuemap = utils.object_valuemap;
-var object_filter = utils.object_filter;
-var object_map = utils.object_map;
-var object_merge = utils.object_merge;
-var Waiter = utils.Waiter;
 
 /* Diccionario para parsear fields específicos */
 var FIELD = {};
@@ -27,61 +22,43 @@ function init_parser(files) {
 		var distro_match = distro_regex.exec(filename);
 		var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
 
-		function read_to_repo(event, __, load) {
+		function read_to_repo(event) {
 			var usable_filename = filename.replace(config.REPO_DISTS_DIR, '');
-
-			function save_to_repo(contents, filename) {
-				var distro_match = distro_regex.exec(filename);
-				var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
-
-				debug('Registrando la información de %s', filename);
-
-				filewatch.contents = contents;
-				filewatch.filename = filename;
-				filewatch.distro = distro;
-				filewatch.lastread = Date.now();
-
-				/* Me dieron un callback para cuando cargue la distro */
-				if(load !== undefined) {
-					load();
-				}
-			}
 
 			debug('El archivo [%s] se ha modificado (event: %s)', usable_filename, event);
 
 			read_file(filename, save_to_repo);
 		}
 
+		function save_to_repo(contents, filename) {
+			var distro_match = distro_regex.exec(filename);
+			var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
+
+			debug('Registrando la información de %s', filename);
+
+			filewatch.contents = contents;
+			filewatch.filename = filename;
+			filewatch.distro = distro;
+			filewatch.lastread = Date.now();
+		}
+
 		filewatch = {
-			contents: undefined,
+			contents: {},
 			filename: filename,
 			distro: distro,
 			lastread: 0,
 			watch: fs.watch(filename, read_to_repo)
 		};
 
-		//filewatch.watch.emit('change', 'load', filename); /* Emito el evento de cargar el archivo */
+		filewatch.watch.emit('change', 'load', filename); /* Emito el evento de cargar el archivo */
 
 		return filewatch;
 	}
 
-	function divide_distros(distro_map, watch) {
-		var distro = watch.distro;
-
-		if(distro_map[distro]) {
-			distro_map[distro].push(watch);
-		} else {
-			distro_map[distro] = [watch];
-			distro_map[distro].distro = distro;
-		}
-
-		return distro_map;
-	}
-
-	repo.watches = files.map(watch_file).reduce(divide_distros, {});
+	repo.watches = files.map(watch_file);
 	repo.get = repo_get.bind(null, repo);
 	repo.get_distro = repo_get_distro.bind(null, repo);
-	repo.contents = {};
+	repo.contents = { lastfold: 0 };
 
 	return repo;
 }
@@ -105,114 +82,61 @@ function read_file(filename, cb) {
 	fs.readFile(filename, gunzip);
 }
 
-function repo_get(repo, distro, package, cb) {
-
-	function distro_loaded(distro) {
-		cb(distro[package]);
-	}
-
-	repo_get_distro(repo, distro, distro_loaded);
-}
-
-function repo_get_distro(repo, distro, cb) {
-
-	function access_distro(distro) {
-		distro.lastaccess = Date.now();
-		cb(distro);
-	}
+function repo_get(repo, distro, package) {
+	var distro_repo;
 
 	repo_check_news(repo);
 
-	if(repo.contents[distro] === undefined) {
-		/* No se cargó la distro */
-		repo_load_distro(repo, distro, access_distro);
-	} else {
-		access_distro(repo.contents[distro]);
-	}
+	distro_repo = repo.contents[distro] || {};
+
+	return distro_repo[package];
 }
 
-function repo_load_distro(repo, distro, cb) {
-	var load_all = Waiter();
+function repo_get_distro(repo, distro) {
+	repo_check_news(repo);
 
-	function wait_file_load(watch) {
-		watch.watch.emit('change', 'load', undefined, load_all.wait());
-	}
-
-	function call_cb() {
-		var distro_contents = repo_add_distro(repo, distro);
-		cb(distro_contents);
-	}
-
-	repo.watches[distro].forEach(wait_file_load);
-	load_all.set_cb(call_cb);
-}
-
-function repo_add_distro(repo, distro) {
-	var watches = repo.watches[distro];
-	var distro_contents = fold_distro(watches, distro);
-
-	repo.contents[distro] = distro_contents;
-
-	return distro_contents;
+	return repo.contents[distro] || {};
 }
 
 function repo_check_news(repo) {
-	var updated_distros;
-	var folded_distros;
+	var lastread;
+	var new_content;
 
-	function is_updated(distro_watches) {
+	function max(a,b) {
+		return Math.max(a,b); /* Lo necesito para poder hacer el reduce, ya que el callback de reduce tiene más argumentos */
+	}
 
-		function is_newer(watch) {
-			var distro_repo = repo.contents[watch.distro];
+	function divide_distros(content, watch) {
+		var distro = watch.distro;
 
-			/* Si la distro no está cargada */
-			if(distro_repo === undefined) {
-				return false;
-			}
-
-			return distro_repo.lastfold < watch.lastread;
+		if(content[distro]) {
+			content[distro] = content[distro].concat(watch.contents);
+		} else {
+			content[distro] = watch.contents;
 		}
 
-		return distro_watches.some(is_newer);
+		return content;
 	}
 
-	updated_distros = object_filter(repo.watches, is_updated);
-	folded_distros = object_map(updated_distros, fold_distro);
-	object_merge(repo.contents, folded_distros);
-}
-
-function fold_distro(watches, distro) {
-	var distro_map;
-
-	function fold_watch(contents, watch) {
-		var watch_contents = watch.contents || []; /* Si por alguna razón no hay packages hago un array vacío en lugar de undefined */
-		return watch_contents.reduce(fold_packages, contents);
+	function create_distro_dictionary(packages) {
+		packages = packages || []; /* Si por alguna razón no hay packages hago un array vació en lugar de undefined */
+		return packages.reduce(fold_packages, {});
 	}
 
-	distro_map = watches.reduce(fold_watch, { lastfold: Date.now(), lastaccess: Date.now(), distro: distro });
+	lastread = repo.watches
+		.map(get_field('lastread'))
+		.reduce(max);
+	new_content = repo.contents.lastfold < lastread;
 
-	return distro_map;
-}
+	if(new_content) {
+		var distros;
 
-function repo_clean(repo) {
-	var now = Date.now();
+		debug('Unificando los datos de cada archivo');
 
-	function delete_if_idle(distro, name) {
-		var elapsed_time = now - distro.lastaccess;
-
-		if(elapsed_time > config.DISTRO_TTL) {
-			debug("Borrando la distro %s (más de %s segundos de inactividad)", name, elapsed_time / 1000);
-			delete repo.contents[name];
-
-			repo.watches[name].map(delete_watch_contents);
-		}
+		distros = repo.watches.reduce(divide_distros, {}); /* Genero un mapa { <distro> => [paquetes] } */
+		repo.contents = utils.object_map(distros, create_distro_dictionary); /* Genero un mapa { <distro> => { <paquete> => {contenidos} } } */
+		repo.contents.lastfold = Date.now();
 	}
-
-	function delete_watch_contents(watch) {
-		delete watch.contents;
-	}
-
-	object_map(repo.contents, delete_if_idle);
 }
 
 function init_repo(search_repo_files_cmdline, cb) {
@@ -224,8 +148,6 @@ function init_repo(search_repo_files_cmdline, cb) {
 			.replace(/\n+$/, '') /* Vuelo el salto de línea final */
 			.split('\n');
 		var repo = init_parser(files);
-
-		setInterval(repo_clean.bind(null, repo), config.DISTRO_TTL);
 
 		cb(repo);
 	}
