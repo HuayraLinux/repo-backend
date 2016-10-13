@@ -13,7 +13,6 @@ var format = util.format;
 var format_map = utils.format_map;
 var object_map = utils.object_map;
 var object_values = utils.object_values;
-var object_reduce = utils.object_reduce;
 
 /* Variables */
 var app = express();
@@ -111,58 +110,84 @@ app.get('/packages/:distro/:package', function get_package_info(req, res) {
 	var params = sanitize_input(req.params);
 	var distro = params.distro;
 	var package_name = params.package;
+	var package;
+	var error;
 
 	debug(req.method, req.url);
 
-	function send_package(package) {
-		var error;
-		if(package === undefined) {
-			error = {
-				code: 404,
-				message: format('No se encontró el paquete binario \'%s\' en la distro \'%s\'', package_name, distro),
-				params: params
-			};
+	if(repo.binaries_loaded === false) {
+		error = {
+			code: 500,
+			message: 'El servicio no terminó de inicializarse, intente en unos minutos',
+			params: params
+		};
 
-			res.status(404);
-			res.send(error);
-			debug('NOT-FOUND:', req.method, req.url, error.message);
+		res.status(500);
+		res.send(error);
+		debug('NOT-INITIALIZED', req.method, req.url, error.message);
 
-			return;
-		}
-
-		res.send(package);
+		return;
 	}
 
-	repo.binaries.get(distro, package_name, send_package);
+	package = repo.binaries.get(distro, package_name);
+
+	if(package === undefined) {
+		error = {
+			code: 404,
+			message: format('No se encontró el paquete binario \'%s\' en la distro \'%s\'', package_name, distro),
+			params: params
+		};
+
+		res.status(404);
+		res.send(error);
+		debug('NOT-FOUND:', req.method, req.url, error.message);
+
+		return;
+	}
+
+	res.send(package);
 });
 
 app.get('/sources/:distro/:package', function get_source_info(req, res) {
 	var params = sanitize_input(req.params);
 	var distro = params.distro;
 	var package_name = params.package;
+	var package;
+	var error;
+
 	debug(req.method, req.url);
 
-	function send_source(source) {
-		var error;
+	if(repo.sources_loaded === false) {
+		error = {
+			code: 500,
+			message: 'El servicio no terminó de inicializarse, intente en unos minutos',
+			params: params
+		};
 
-		if(package === undefined) {
-			error = {
-				code: 404,
-				message: 'No se encontró el paquete source \'' + package_name + '\' en la distro \'' + distro + '\'',
-				params: params
-			};
+		res.status(500);
+		res.send(error);
+		debug('NOT-INITIALIZED', req.method, req.url, error.message);
 
-			res.status(404);
-			res.send(error);
-			debug('NOT-FOUND:', req.method, req.url, error.message);
-
-			return;
-		}
-
-		res.send(source);
+		return;
 	}
 
-	repo.sources.get(distro, package_name, send_source);
+	package = repo.sources.get(distro, package_name);
+
+	if(package === undefined) {
+		error = {
+			code: 404,
+			message: 'No se encontró el paquete source \'' + package_name + '\' en la distro \'' + distro + '\'',
+			params: params
+		};
+
+		res.status(404);
+		res.send(error);
+		debug('NOT-FOUND:', req.method, req.url, error.message);
+
+		return;
+	}
+
+	res.send(package);
 });
 
 app.get('/distributions', function get_distro_list(req, res) {
@@ -196,7 +221,7 @@ app.get('/distributions', function get_distro_list(req, res) {
 	});
 });
 
-function extract_package_data(package) {
+function extract_data(package) {
 
 	function extract_versions(version) {
 		return {
@@ -213,94 +238,81 @@ function extract_package_data(package) {
 	};
 }
 
-function extract_distro_data(distro) {
-	function exclude_metadata(package_list, package, key) {
-		var ignored_data = { lastfold: "Date.now()", lastaccess: "Date.now()", distro: "distro" };
-
-		if(key in ignored_data) {
-			return package_list;
-		}
-		package_list.push(extract_package_data(package));
-		return package_list;
-	}
-
-	return object_reduce(distro, exclude_metadata, []);
-}
-
 
 app.get('/distributions/:distro/packages', function get_distro_packages(req, res) {
 	var params = sanitize_input(req.params);
+	var packages = repo.binaries.get_distro(params.distro);
+	var package_list = object_values(packages).map(extract_data);
 
-	function send_packages(packages) {
-		var package_list = extract_distro_data(packages);
+	debug(req.method, req.url);
 
-		debug(req.method, req.url);
+	/* Si la salida es vacía no se encontró el paquete */
+	if(Object.keys(packages).length === 0) {
+		var error = {
+			code: 404,
+			message: 'No existe la distribución \'' + params.distro + '\'',
+			params: params
+		};
 
-		/* Si la salida es vacía no se encontró el paquete */
-		if(Object.keys(packages).length === 0) {
-			var error = {
-				code: 404,
-				message: 'No existe la distribución \'' + params.distro + '\'',
-				params: params
-			};
+		res.status(404);
+		res.send(error);
+		debug('NOT-FOUND:', req.method, req.url, error.message);
 
-			res.status(404);
-			res.send(error);
-			debug('NOT-FOUND:', req.method, req.url, error.message);
-
-			return;
-		}
-
-		res.send(package_list);
+		return;
 	}
 
-	repo.binaries.get_distro(params.distro, send_packages);
+	res.send(package_list);
 });
 
 app.get('/distributions/:distro/sources', function get_distro_sources(req, res) {
 	var params = sanitize_input(req.params);
+	var packages = repo.sources.get_distro(params.distro);
+	var package_list = object_values(packages).map(extract_data);
 
-	function send_sources(sources) {
-		var source_list = extract_distro_data(sources);
+	debug(req.method, req.url);
 
-		debug(req.method, req.url);
+	/* Si la salida es vacía no se encontró el paquete */
+	if(Object.keys(packages).length === 0) {
+		var error = {
+			code: 404,
+			message: 'No existe la distribución \'' + params.distro + '\'',
+			params: params
+		};
 
-		/* Si la salida es vacía no se encontró el paquete */
-		if(Object.keys(packages).length === 0) {
-			var error = {
-				code: 404,
-				message: 'No existe la distribución \'' + params.distro + '\'',
-				params: params
-			};
+		res.status(404);
+		res.send(error);
+		debug('NOT-FOUND:', req.method, req.url, error.message);
 
-			res.status(404);
-			res.send(error);
-			debug('NOT-FOUND:', req.method, req.url, error.message);
-
-			return;
-		}
-
-		res.send(source_list);
+		return;
 	}
 
-	repo.sources.get_distro(params.distro, send_sources);
+	res.send(package_list);
 });
 
 app.listen(config.API_PORT, function start_server() {
   console.log('Example app listening on port', config.API_PORT);
 });
 
+
 function load_packages() {
 	function binaries_loaded(binaries) {
+		repo.binaries_loaded = true;
 		repo.binaries = binaries;
+
+		debug('Cargados los binarios');
 	}
 
 	function sources_loaded(sources) {
+		repo.sources_loaded = true;
 		repo.sources = sources;
+
+		debug('Cargados los sources');
 	}
 
 	debian_packages.init_binaries(binaries_loaded);
 	debian_packages.init_sources(sources_loaded);
+
+	debug('Cargando binarios y sources');
 }
 
 load_packages();
