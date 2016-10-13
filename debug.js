@@ -1,4 +1,4 @@
-var enabled = require('./config.js').DEBUG;
+var enabled = require('./config.js').LOG;
 var stacktrace = require('stacktrace-js');
 var format = require('util').format;
 var basename = require('path').basename;

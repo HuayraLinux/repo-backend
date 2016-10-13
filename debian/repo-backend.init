@@ -12,7 +12,7 @@
 
 USER="repo"
 API_PORT="8080"
-DEBUG=false
+LOG=false
 
 # Read configuration variable file if it is present
 [ -r /etc/default/repo-backend ] && . /etc/default/repo-backend
