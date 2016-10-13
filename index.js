@@ -13,6 +13,7 @@ var format = util.format;
 var format_map = utils.format_map;
 var object_map = utils.object_map;
 var object_values = utils.object_values;
+var object_reduce = utils.object_reduce;
 
 /* Variables */
 var app = express();
@@ -195,7 +196,7 @@ app.get('/distributions', function get_distro_list(req, res) {
 	});
 });
 
-function extract_data(package) {
+function extract_package_data(package) {
 
 	function extract_versions(version) {
 		return {
@@ -212,12 +213,26 @@ function extract_data(package) {
 	};
 }
 
+function extract_distro_data(distro) {
+	function exclude_metadata(package_list, package, key) {
+		var ignored_data = { lastfold: "Date.now()", lastaccess: "Date.now()", distro: "distro" };
+
+		if(key in ignored_data) {
+			return package_list;
+		}
+		package_list.push(extract_package_data(package));
+		return package_list;
+	}
+
+	return object_reduce(distro, exclude_metadata, []);
+}
+
 
 app.get('/distributions/:distro/packages', function get_distro_packages(req, res) {
 	var params = sanitize_input(req.params);
 
 	function send_packages(packages) {
-		var package_list = object_values(packages).map(extract_data);
+		var package_list = extract_distro_data(packages);
 
 		debug(req.method, req.url);
 
@@ -239,14 +254,14 @@ app.get('/distributions/:distro/packages', function get_distro_packages(req, res
 		res.send(package_list);
 	}
 
-	repo.binaries.get_distro(params.distro, send_packages(packages));
+	repo.binaries.get_distro(params.distro, send_packages);
 });
 
 app.get('/distributions/:distro/sources', function get_distro_sources(req, res) {
 	var params = sanitize_input(req.params);
 
 	function send_sources(sources) {
-		var source_list = object_values(sources).map(extract_data);
+		var source_list = extract_distro_data(sources);
 
 		debug(req.method, req.url);
 
