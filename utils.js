@@ -22,7 +22,7 @@ module.exports.object_map = function object_map(obj, f) {
 	var rval = {};
 
 	for(var key in obj) {
-		rval[key] = f(obj[key], key);
+		rval[key] = f(obj[key], key, obj);
 	}
 	return rval;
 };
@@ -31,7 +31,7 @@ module.exports.object_valuemap = function object_valuemap(obj, f) {
 	var rval = [];
 
 	for(var key in obj) {
-		rval.push(f(obj[key], key));
+		rval.push(f(obj[key], key, obj));
 	}
 	return rval;
 };
@@ -59,7 +59,7 @@ module.exports.object_filter = function object_filter(obj, cb) {
 	var rval = {};
 
 	for(var key in obj) {
-		if(cb(obj[key], key)) {
+		if(cb(obj[key], key, obj)) {
 			rval[key] = obj[key];
 		}
 	}
@@ -73,6 +73,16 @@ module.exports.object_merge = function object_merge(dest, orig) {
 	}
 
 	return dest;
+};
+
+module.exports.object_reduce = function object_reduce(obj, operation, initial_value) {
+	var rval = initial_value;
+
+	for(var key in obj) {
+		rval = operation(rval, obj[key], key, obj);
+	}
+
+	return rval;
 };
 
 module.exports.get_field = function get_field(field) {

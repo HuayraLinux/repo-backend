@@ -203,7 +203,13 @@ function repo_clean(repo) {
 		if(elapsed_time > config.DISTRO_TTL) {
 			debug("Borrando la distro %s (más de %s segundos de inactividad)", name, elapsed_time / 1000);
 			delete repo.contents[name];
+
+			repo.watches[name].map(delete_watch_contents);
 		}
+	}
+
+	function delete_watch_contents(watch) {
+		delete watch.contents;
 	}
 
 	object_map(repo.contents, delete_if_idle);
