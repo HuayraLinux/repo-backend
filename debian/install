@@ -1,8 +1,7 @@
 config.prod.js		usr/share/repo-backend/config.js
 debian_packages.js	usr/share/repo-backend
-debug.js			usr/share/repo-backend
-index.js			usr/share/repo-backend
+debug.js		usr/share/repo-backend
+index.js		usr/share/repo-backend
 package.json		usr/share/repo-backend
-utils.js			usr/share/repo-backend
-examples			usr/share/repo-backend
-node_modules        usr/share/repo-backend
+utils.js		usr/share/repo-backend
+node_modules		usr/share/repo-backend
