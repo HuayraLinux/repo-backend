@@ -4,6 +4,6 @@ REPREPRO_BASE_DIR=/home/your_repo/path
 # Listen port
 API_PORT=8080
 
-# Enable/Disable debug
-DEBUG=false
+# Enable/Disable logging
+LOG=true
 

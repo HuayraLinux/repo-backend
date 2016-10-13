@@ -316,3 +316,10 @@ function load_packages() {
 }
 
 load_packages();
+
+if(config.PIDFILE) {
+	require('fs').writeFile(config.PIDFILE, process.pid);
+	process.on('exit', function remove_pidfile() {
+		require('fs').unlinkSync(config.PIDFILE);
+	});
+}
