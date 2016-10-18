@@ -17,7 +17,7 @@ LOG=false
 # Read configuration variable file if it is present
 [ -r /etc/default/repo-backend ] && . /etc/default/repo-backend
 
-PIDFILE=/var/run/re-backend/app.pid
+PIDFILE=/var/run/repo-backend/app.pid
 DAEMON=$(which node)
 DAEMON_OPTS=/usr/share/repo-backend/index.js
 NAME=repo-backend
