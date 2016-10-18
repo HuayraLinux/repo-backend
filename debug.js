@@ -1,13 +1,27 @@
-var enabled = require('./config.js').LOG;
 var stacktrace = require('stacktrace-js');
+
+var createWriteStream = require('fs').createWriteStream;
 var format = require('util').format;
 var basename = require('path').basename;
+var config = require('./config.js');
+var enabled = config.LOG;
+var logfile = config.LOGFILE;
+
+var debug_console;
+
+function create_logfile_console(logfile) {
+	var write_stream = createWriteStream(logfile);
+	return new console.Console(write_stream, write_stream);
+}
 
 function dummy() {
 }
 
+debug_console = logfile ? create_logfile_console(logfile) : console;
+
 if(enabled) {
 	module.exports = function gen_logger(namespace) {
+
 		function logger() {
 			var now = (new Date()).toISOString();
 			var args = Array.prototype.slice.call(arguments);
@@ -22,9 +36,9 @@ if(enabled) {
 			var string = format(log_format, now, namespace, f, file, line, args_format);
 
 			if(args_args.length > 0) {
-				console.log.apply(console, [string].concat(args_args));
+				debug_console.log.apply(debug_console, [string].concat(args_args));
 			} else {
-				console.log(string);
+				debug_console.log(string);
 			}
 		}
 
