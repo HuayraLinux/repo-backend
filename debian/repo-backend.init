@@ -19,7 +19,7 @@ LOG=false
 
 PIDFILE=/var/run/re-backend/app.pid
 DAEMON=$(which node)
-DAEMON_OPTS=/usr/share/repo-backend/index.php
+DAEMON_OPTS=/usr/share/repo-backend/index.js
 NAME=repo-backend
 
 . /lib/lsb/init-functions
@@ -27,6 +27,8 @@ NAME=repo-backend
 
 do_start() {
 	echo -n "Starting daemon: "$NAME
+	mkdir -p `dirname $PIDFILE`
+	chown $USER:$USER `dirname $PIDFILE`
 	start-stop-daemon --start --background --quiet --chuid $USER:$USER --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
     echo "."
 }
