@@ -12,7 +12,8 @@ config
 .config('REPREPRO_BASE_DIR')
 .config('REPO_DISTS_DIR', config.REPREPRO_BASE_DIR + '/dists')
 .config('LOGFILE')
-.config('PIDFILE');
+.config('PIDFILE')
+.config('LOAD_INTERVAL', 600000); /* 10 minutos */
 
 config.reprepro = {
 	package_versions: 'reprepro ls "<package>"',

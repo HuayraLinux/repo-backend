@@ -12,7 +12,8 @@ config
 .config('REPREPRO_BASE_DIR')
 .config('REPO_DISTS_DIR', config.REPREPRO_BASE_DIR + '/dists')
 .config('LOGFILE')
-.config('PIDFILE');
+.config('PIDFILE')
+.config('LOAD_INTERVAL', 5000);
 
 config.reprepro = {
 	package_versions: 'cat test_data/package_versions',

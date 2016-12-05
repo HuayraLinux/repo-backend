@@ -23,7 +23,7 @@ if(enabled) {
 	module.exports = function gen_logger(namespace) {
 
 		function logger() {
-			var now = (new Date()).toISOString();
+			var now = Date();
 			var args = Array.prototype.slice.call(arguments);
 			var stack = stacktrace.getSync();
 			var log_format = "[%s/%s/%s %s:%s] %s";
