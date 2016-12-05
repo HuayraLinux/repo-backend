@@ -24,7 +24,7 @@ DAEMON_OPTS=/usr/share/repo-backend/index.js
 NAME=repo-backend
 
 # Exportar variables de configuración para node
-export USER API_PORT LOG PIDFILE LOGFILE REPREPRO_BASE_DIR
+export USER API_PORT LOG PIDFILE LOGFILE REPREPRO_BASE_DIR LOAD_INTERVAL
 
 . /lib/lsb/init-functions
 

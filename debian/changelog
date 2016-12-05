@@ -1,3 +1,11 @@
+repo-backend (0.2) unstable; urgency=medium
+
+  * Cuando ocurre algún cambio en el repositorio se marca como dirty y se espera
+    al job de parsear los archivos. Debería evitar el bug de versiones vacías al
+    recargar la data y consumo innecesario de la máquina al duplicarse los eventos
+
+ -- Ignacio Losiggio <iglosiggio@gmail.com>  Mon, 05 Dec 2016 15:01:25 -0300
+
 repo-backend (0.1) unstable; urgency=medium
 
   * Initial release
