@@ -106,6 +106,8 @@ function read_file_promise(filename) {
 }
 
 function read_file(filename, cb) {
+	var usable_filename = filename.replace(config.REPO_DISTS_DIR, '');
+
 	function parse_file(error, data) {
 		var component_match = /\/([^/]+)\/[^/]+\/[^/]+$/.exec(filename); /* Matcheo el directorio correspondiente al componente */
 		var component = component_match && component_match[1] ? component_match[1] : 'unknown'; /* Si no matchié algo con sentido no se cuál es el componente */
@@ -119,7 +121,7 @@ function read_file(filename, cb) {
 		zlib.gunzip(data, parse_file);
 	}
 
-	debug('Leyendo el archivo %s', filename);
+	debug('Leyendo el archivo %s', usable_filename);
 
 	fs.readFile(filename, gunzip);
 }
