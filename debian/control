@@ -10,7 +10,7 @@ Vcs-Git: https://github.com/HuayraLinux/repo-backend.git
 
 Package: repo-backend
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, node ( >= 0.10)
+Depends: ${shlibs:Depends}, ${misc:Depends}, nodejs ( >= 0.10)
 Recommends: reprepro ( >= 4.12 )
 Description: API backend para navegador web de paquetes de Huayra
  Servicio de API para browser de repositorio de paquetes de Huayra

@@ -1,4 +1,5 @@
 /* Imports */
+var Promise = require('es6-promise');
 var fs = require('fs');
 var zlib = require('zlib');
 var exec = require('child_process').exec;
@@ -14,7 +15,7 @@ var get_field = utils.get_field;
 var FIELD = {};
 
 function init_parser(files) {
-	var repo = {};
+	var repo = { dirty: true };
 
 	function watch_file(filename) {
 		var filewatch;
@@ -22,35 +23,19 @@ function init_parser(files) {
 		var distro_match = distro_regex.exec(filename);
 		var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
 
-		function read_to_repo(event) {
+		function mark_dirty(event) {
 			var usable_filename = filename.replace(config.REPO_DISTS_DIR, '');
 
-			debug('El archivo [%s] se ha modificado (event: %s)', usable_filename, event);
+			debug('Evento en [%s] (%s)', usable_filename, event);
 
-			read_file(filename, save_to_repo);
-		}
-
-		function save_to_repo(contents, filename) {
-			var distro_match = distro_regex.exec(filename);
-			var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
-
-			debug('Registrando la información de %s', filename);
-
-			filewatch.contents = contents;
-			filewatch.filename = filename;
-			filewatch.distro = distro;
-			filewatch.lastread = Date.now();
+			repo.dirty = true;
 		}
 
 		filewatch = {
-			contents: {},
 			filename: filename,
 			distro: distro,
-			lastread: 0,
-			watch: fs.watch(filename, read_to_repo)
+			watch: fs.watch(filename, mark_dirty)
 		};
-
-		filewatch.watch.emit('change', 'load', filename); /* Emito el evento de cargar el archivo */
 
 		return filewatch;
 	}
@@ -58,12 +43,71 @@ function init_parser(files) {
 	repo.watches = files.map(watch_file);
 	repo.get = repo_get.bind(null, repo);
 	repo.get_distro = repo_get_distro.bind(null, repo);
-	repo.contents = { lastfold: 0 };
+	repo.contents = {};
+	repo.loadInterval = setInterval(repo_load_files, config.LOAD_INTERVAL, repo);
+
+	/* Cargo los archivos */
+	repo_load_files(repo);
 
 	return repo;
 }
 
+function repo_load_files(repo) {
+	var read_files_promises;
+
+	if(!repo.dirty) {
+		return;
+	}
+
+	/* Recibe un watch y devuelve una Promesa que resuelve a {watch: watch, packages: [paquetes]} */
+	function read_to_repo(watch) {
+		function add_metadata(packages) {
+			return { watch: watch, packages: packages };
+		}
+
+		return read_file_promise(watch.filename).then(add_metadata);
+	}
+
+	/* Genero un mapa { <distro> => [paquetes] } */
+	function divide_distros(repo, data) {
+		var distro = data.watch.distro;
+
+		if(repo[distro]) {
+			repo[distro] = repo[distro].concat(data.packages);
+		} else {
+			repo[distro] = data.packages;
+		}
+
+		return repo;
+	}
+
+	/* Genero un mapa { <distro> => { <paquete> => {contenidos} } } */
+	function create_distro_dictionary(packages) {
+		packages = packages || []; /* Si por alguna razón no hay packages hago un array vació en lugar de undefined */
+		return packages.reduce(fold_packages, {});
+	}
+
+	function unify_data(data) {
+		var distros;
+
+		debug('Unificando los datos de cada archivo');
+
+		distros = data.reduce(divide_distros, {});
+		repo.contents = utils.object_map(distros, create_distro_dictionary);
+		repo.dirty = false;
+	}
+
+	read_files_promises = repo.watches.map(read_to_repo);
+	Promise.all(read_files_promises).then(unify_data);
+}
+
+function read_file_promise(filename) {
+	return new Promise(read_file.bind(null, filename));
+}
+
 function read_file(filename, cb) {
+	var usable_filename = filename.replace(config.REPO_DISTS_DIR, '');
+
 	function parse_file(error, data) {
 		var component_match = /\/([^/]+)\/[^/]+\/[^/]+$/.exec(filename); /* Matcheo el directorio correspondiente al componente */
 		var component = component_match && component_match[1] ? component_match[1] : 'unknown'; /* Si no matchié algo con sentido no se cuál es el componente */
@@ -77,7 +121,7 @@ function read_file(filename, cb) {
 		zlib.gunzip(data, parse_file);
 	}
 
-	debug('Leyendo el archivo %s', filename);
+	debug('Leyendo el archivo %s', usable_filename);
 
 	fs.readFile(filename, gunzip);
 }
@@ -85,58 +129,13 @@ function read_file(filename, cb) {
 function repo_get(repo, distro, package) {
 	var distro_repo;
 
-	repo_check_news(repo);
-
 	distro_repo = repo.contents[distro] || {};
 
 	return distro_repo[package];
 }
 
 function repo_get_distro(repo, distro) {
-	repo_check_news(repo);
-
 	return repo.contents[distro] || {};
-}
-
-function repo_check_news(repo) {
-	var lastread;
-	var new_content;
-
-	function max(a,b) {
-		return Math.max(a,b); /* Lo necesito para poder hacer el reduce, ya que el callback de reduce tiene más argumentos */
-	}
-
-	function divide_distros(content, watch) {
-		var distro = watch.distro;
-
-		if(content[distro]) {
-			content[distro] = content[distro].concat(watch.contents);
-		} else {
-			content[distro] = watch.contents;
-		}
-
-		return content;
-	}
-
-	function create_distro_dictionary(packages) {
-		packages = packages || []; /* Si por alguna razón no hay packages hago un array vació en lugar de undefined */
-		return packages.reduce(fold_packages, {});
-	}
-
-	lastread = repo.watches
-		.map(get_field('lastread'))
-		.reduce(max);
-	new_content = repo.contents.lastfold < lastread;
-
-	if(new_content) {
-		var distros;
-
-		debug('Unificando los datos de cada archivo');
-
-		distros = repo.watches.reduce(divide_distros, {}); /* Genero un mapa { <distro> => [paquetes] } */
-		repo.contents = utils.object_map(distros, create_distro_dictionary); /* Genero un mapa { <distro> => { <paquete> => {contenidos} } } */
-		repo.contents.lastfold = Date.now();
-	}
 }
 
 function init_repo(search_repo_files_cmdline, cb) {
@@ -321,7 +320,6 @@ module.exports = {
 	read_file: read_file,
 	repo_get: repo_get,
 	repo_get_distro: repo_get_distro,
-	repo_check_news: repo_check_news,
 	init_binaries: init_binaries,
 	init_sources: init_sources,
 	parse_packages: parse_packages,

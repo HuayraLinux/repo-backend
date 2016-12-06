@@ -1,4 +1,4 @@
-config.prod.js		usr/share/repo-backend/config.js
+config.js		usr/share/repo-backend
 debian_packages.js	usr/share/repo-backend
 debug.js		usr/share/repo-backend
 index.js		usr/share/repo-backend

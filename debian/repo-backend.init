@@ -17,23 +17,29 @@ LOG=false
 # Read configuration variable file if it is present
 [ -r /etc/default/repo-backend ] && . /etc/default/repo-backend
 
-PIDFILE=/var/run/re-backend/app.pid
-DAEMON=$(wich node)
-DAEMON_OPTS=/usr/share/repo-backend/index.php
+PIDFILE=/var/run/repo-backend/app.pid
+LOGFILE=/var/log/repo-backend/app.log
+DAEMON=$(which node)
+DAEMON_OPTS=/usr/share/repo-backend/index.js
 NAME=repo-backend
+
+# Exportar variables de configuración para node
+export USER API_PORT LOG PIDFILE LOGFILE REPREPRO_BASE_DIR LOAD_INTERVAL
 
 . /lib/lsb/init-functions
 
 
 do_start() {
 	echo -n "Starting daemon: "$NAME
-	start-stop-daemon --start --background --make-pifdile --quiet --chuid $USER:$USER --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+	mkdir -p `dirname $PIDFILE`
+	chown $USER:$USER `dirname $PIDFILE`
+	start-stop-daemon --start --background --quiet --chuid $USER:$USER --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
     echo "."
 }
 
 do_stop() {
     echo -n "Stopping daemon: "$NAME
-	start-stop-daemon --stop --quiet --chuid $USER:$USER --oknodo --pidfile $PIDFILE --remove-pidfile 
+	start-stop-daemon --stop --quiet --chuid $USER:$USER --oknodo --pidfile $PIDFILE
     echo "."
 }
 

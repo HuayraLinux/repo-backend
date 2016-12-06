@@ -318,8 +318,22 @@ function load_packages() {
 load_packages();
 
 if(config.PIDFILE) {
+	debug("Creando pidfile (%s)", config.PIDFILE);
+
 	require('fs').writeFile(config.PIDFILE, process.pid);
+
 	process.on('exit', function remove_pidfile() {
+		debug("Borrando pidfile (%s)", config.PIDFILE);
 		require('fs').unlinkSync(config.PIDFILE);
+	});
+
+	process.on('SIGTERM', function recv_sigterm() {
+		debug("Recibí un sigterm, buenas noches!");
+		process.exit();
+	});
+
+	process.on('SIGINT', function recv_sigint() {
+		debug("Recibí un sigint, buenas noches!");
+		process.exit();
 	});
 }

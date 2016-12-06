@@ -1,6 +1,6 @@
 var config = {
 	config: function config(name, default_value) {
-		this[name] = process.env[name] === undefined ? default_value : process.env[name];
+		this[name] = process.env[name] || default_value;
 		return this;
 	}
 };
@@ -11,7 +11,9 @@ config
 .config('LOG_EXEC_OUTPUT', false) /* No tiene efecto aún */
 .config('REPREPRO_BASE_DIR')
 .config('REPO_DISTS_DIR', config.REPREPRO_BASE_DIR + '/dists')
-.config('PIDFILE');
+.config('LOGFILE')
+.config('PIDFILE')
+.config('LOAD_INTERVAL', 5000);
 
 config.reprepro = {
 	package_versions: 'cat test_data/package_versions',
