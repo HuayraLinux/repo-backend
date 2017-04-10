@@ -1,0 +1,1 @@
+find . -iname "*.deb" | awk -F/ '{ gsub(/\.deb$/, "", $NF); print $NF}'
