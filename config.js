@@ -21,7 +21,6 @@ config.reprepro = {
 	distro_list: 'cat ' + config.REPREPRO_BASE_DIR + '/conf/distributions',
 	search_package_files: 'find "' + config.REPO_DISTS_DIR + '" -iname Packages.gz',
 	search_source_files: 'find "' + config.REPO_DISTS_DIR + '" -iname Sources.gz'
-	list_all_packages: 'find ' + config.REPO_POOL_DIR + ' -type f | awk -F/ \'{ gsub(/_.*$/, "", $NF); print $NF}\' | sort | uniq'
+	list_all_packages: 'find ' + config.REPO_POOL_DIR + ' -type f | awk -F/ \'{ type = (match($NF, /\.deb$/) == 0 ? "B" : "S"); gsub(/_.*$/, "", $NF); print type "\t" $NF }\' | sort | uniq'
 };
-
 module.exports = config;

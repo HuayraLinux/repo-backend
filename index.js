@@ -36,6 +36,27 @@ app.use(function add_cors_headers(req, res, next) {
 	next();
 });
 
+app.get('/packages/search/:query', function get_package_search(req, res) {
+	var params = sanitize_input(req.params);
+	var search = new RegExp('.*' + params.query + '.*', 'g');
+	var results = repo.package_list.match(search) || [];
+
+	results.map(function augument_result(result) {
+		var data = result.split('\t');
+		var is_src = data[0] === 'S';
+		var title = data[1];
+		var repo = is_src ? repo.source : repo.binaries;
+		var package = repo.get(title) || {};
+		var description = package['Description'] || {};
+
+		return {
+			title: title,
+			description: description['Short-Description'],
+			type: is_src ? 'source' : 'binary'
+		};
+	});
+});
+
 /*
  * Salida esperada:
  *
