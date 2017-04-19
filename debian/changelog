@@ -1,3 +1,9 @@
+repo-backend (0.2.2) unstable; urgency=medium
+
+  * Trabajo inicial en la búsqueda de paquetes
+
+ -- Ignacio Losiggio <iglosiggio@gmail.com>  Wed, 19 Apr 2017 16:11:50 -0300
+
 repo-backend (0.2.1) unstable; urgency=medium
 
   * Cambios menores en el log, versión para probar que funcione modificar el
