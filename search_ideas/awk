@@ -1,1 +1,1 @@
-find <repo> -type f | awk -F/ '{ type = (match($NF, /\.deb$/) == 0 ? "B" : "S"); gsub(/_.*$/, "", $NF); print type "\t" $NF }' | sort | uniq
+find <repo> -type f | awk -F/ '{ gsub(/_.*$/, "", $NF); print $NF}' | sort | uniq

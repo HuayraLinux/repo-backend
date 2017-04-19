@@ -24,4 +24,6 @@ config.reprepro = {
 	list_all_packages: 'cat test_data/repo_package_list'
 };
 
+config.prefered_distro = 'torbellino';
+
 module.exports = config;
