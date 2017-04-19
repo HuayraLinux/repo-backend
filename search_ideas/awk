@@ -1,1 +1,0 @@
-find <repo> -type f | awk -F/ '{ gsub(/_.*$/, "", $NF); print $NF}' | sort | uniq
