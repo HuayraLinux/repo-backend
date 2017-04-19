@@ -52,7 +52,7 @@ app.get('/packages/search/:query', function get_package_search(req, res) {
 		};
 	});
 
-	res.send(query_results);
+	res.send({ results: query_results });
 });
 
 /*
