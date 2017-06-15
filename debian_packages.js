@@ -11,6 +11,9 @@ var format = utils.format_map;
 var regex_fold = utils.regex_fold;
 var get_field = utils.get_field;
 
+/* Intervalo en el que node hace polling de los archivos, mínimo 5007 y máximo ~5 segundos antes del LOAD_INTERVAL */
+var watchFile_interval = Math.max(LOAD_INTERVAL - 5007, 5007);
+
 /* Diccionario para parsear fields específicos */
 var FIELD = {};
 
@@ -23,18 +26,20 @@ function init_parser(files) {
 		var distro_match = distro_regex.exec(filename);
 		var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
 
-		function mark_dirty(event) {
+		function mark_dirty(stats_now, last_stats) {
 			var usable_filename = filename.replace(config.REPO_DISTS_DIR, '');
 
-			debug('Evento en [%s] (%s)', usable_filename, event);
+			if(stats_now.mtimeMs != last_stats.mtimeMs) {
+				debug('Se modificó [%s]', usable_filename);
 
-			repo.dirty = true;
+				repo.dirty = true;
+			}
 		}
 
 		filewatch = {
 			filename: filename,
 			distro: distro,
-			watch: fs.watch(filename, mark_dirty)
+			watch: fs.watchFile(filename, { interval: watchFile_interval }, mark_dirty)
 		};
 
 		return filewatch;
