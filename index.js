@@ -1,4 +1,5 @@
 /* Imports */
+var Promise = require('es6-promise');
 var express = require('express');
 var exec = require('child_process').exec;
 var utils = require('./utils');
@@ -7,7 +8,7 @@ var debian_packages = require('./debian_packages');
 var config = require('./config');
 var debug = require('./debug')('webapp');
 var node_error = require('./debug')('NODE-ERROR');
-var repo = { binaries_loaded: false, sources_loaded: false };
+var repo = {};
 
 var format = util.format;
 var format_map = utils.format_map;
@@ -34,6 +35,24 @@ app.use(function add_cors_headers(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	next();
+});
+
+app.get('/packages/search/:query', function get_package_search(req, res) {
+	var params = sanitize_input(req.params);
+	var search = new RegExp('.*' + params.query + '.*', 'g');
+	var results = repo.package_list.list.match(search) || [];
+
+	var query_results = results.map(function augument_result(title) {
+		var package = repo.binaries.get_any(title, config.prefered_distro) || repo.sources.get_any(title, config.prefered_distro) || {};
+		var description = package.Description || {};
+
+		return {
+			title: title,
+			description: description['Short-Description'],
+		};
+	});
+
+	res.send({ results: query_results });
 });
 
 /*
@@ -115,20 +134,6 @@ app.get('/packages/:distro/:package', function get_package_info(req, res) {
 
 	debug(req.method, req.url);
 
-	if(repo.binaries_loaded === false) {
-		error = {
-			code: 500,
-			message: 'El servicio no terminó de inicializarse, intente en unos minutos',
-			params: params
-		};
-
-		res.status(500);
-		res.send(error);
-		debug('NOT-INITIALIZED', req.method, req.url, error.message);
-
-		return;
-	}
-
 	package = repo.binaries.get(distro, package_name);
 
 	if(package === undefined) {
@@ -156,20 +161,6 @@ app.get('/sources/:distro/:package', function get_source_info(req, res) {
 	var error;
 
 	debug(req.method, req.url);
-
-	if(repo.sources_loaded === false) {
-		error = {
-			code: 500,
-			message: 'El servicio no terminó de inicializarse, intente en unos minutos',
-			params: params
-		};
-
-		res.status(500);
-		res.send(error);
-		debug('NOT-INITIALIZED', req.method, req.url, error.message);
-
-		return;
-	}
 
 	package = repo.sources.get(distro, package_name);
 
@@ -289,28 +280,34 @@ app.get('/distributions/:distro/sources', function get_distro_sources(req, res) 
 	res.send(package_list);
 });
 
-app.listen(config.API_PORT, function start_server() {
-  console.log('Example app listening on port', config.API_PORT);
-});
-
-
 function load_packages() {
 	function binaries_loaded(binaries) {
-		repo.binaries_loaded = true;
 		repo.binaries = binaries;
 
 		debug('Cargados los binarios');
 	}
 
 	function sources_loaded(sources) {
-		repo.sources_loaded = true;
 		repo.sources = sources;
 
 		debug('Cargados los sources');
 	}
 
-	debian_packages.init_binaries(binaries_loaded);
-	debian_packages.init_sources(sources_loaded);
+	function packages_listed(packages) {
+		repo.package_list = packages;
+
+		debug('Cargada la lista de paquetes');
+	}
+
+	Promise.all([
+		debian_packages.init_binaries().then(binaries_loaded),
+		debian_packages.init_sources().then(sources_loaded),
+		debian_packages.load_package_list().then(packages_listed)
+	]).then(function start_app() {
+		app.listen(config.API_PORT, function start_server() {
+		  console.log('repo-backend listening on port', config.API_PORT);
+		});
+	});
 
 	debug('Cargando binarios y sources');
 }

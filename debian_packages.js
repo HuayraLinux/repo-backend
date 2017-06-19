@@ -11,6 +11,9 @@ var format = utils.format_map;
 var regex_fold = utils.regex_fold;
 var get_field = utils.get_field;
 
+/* Intervalo en el que node hace polling de los archivos, mínimo 5007 y máximo ~5 segundos antes del LOAD_INTERVAL */
+var watchFile_interval = Math.max(config.LOAD_INTERVAL - 5007, 5007);
+
 /* Diccionario para parsear fields específicos */
 var FIELD = {};
 
@@ -23,18 +26,20 @@ function init_parser(files) {
 		var distro_match = distro_regex.exec(filename);
 		var distro = distro_match && distro_match[1] ? distro_match[1] : 'unknown';
 
-		function mark_dirty(event) {
+		function mark_dirty(stats_now, last_stats) {
 			var usable_filename = filename.replace(config.REPO_DISTS_DIR, '');
 
-			debug('Evento en [%s] (%s)', usable_filename, event);
+			if(stats_now.mtimeMs != last_stats.mtimeMs) {
+				debug('Se modificó [%s]', usable_filename);
 
-			repo.dirty = true;
+				repo.dirty = true;
+			}
 		}
 
 		filewatch = {
 			filename: filename,
 			distro: distro,
-			watch: fs.watch(filename, mark_dirty)
+			watch: fs.watchFile(filename, { interval: watchFile_interval }, mark_dirty)
 		};
 
 		return filewatch;
@@ -43,6 +48,7 @@ function init_parser(files) {
 	repo.watches = files.map(watch_file);
 	repo.get = repo_get.bind(null, repo);
 	repo.get_distro = repo_get_distro.bind(null, repo);
+	repo.get_any = repo_get_any.bind(null, repo);
 	repo.contents = {};
 	repo.loadInterval = setInterval(repo_load_files, config.LOAD_INTERVAL, repo);
 
@@ -54,6 +60,10 @@ function init_parser(files) {
 
 function repo_load_files(repo) {
 	var read_files_promises;
+
+	debug(repo.dirty
+		? 'Hubo cambios en el repositorio, recargando...'
+		: 'No se registran cambios en el repositorio');
 
 	if(!repo.dirty) {
 		return;
@@ -138,6 +148,30 @@ function repo_get_distro(repo, distro) {
 	return repo.contents[distro] || {};
 }
 
+function repo_get_any(repo, package_name, preferences) {
+	var package;
+
+	if(preferences instanceof Array) { /* Si es un array supongo que es un array de distros */
+		package = preferences.find(function find_package(distro) {
+			return repo.get(distro, package_name);
+		});
+	} else if(preferences instanceof String) { /* Si es un string supongo que es la distro */
+		package = repo.get(preferences, package_name);
+	}
+
+	if(package !== undefined) {
+		return package;
+	}
+
+	for(var distro in repo.contents) {
+		package = repo.get(distro, package_name);
+
+		if(package !== undefined) {
+			return package;
+		}
+	}
+}
+
 function init_repo(search_repo_files_cmdline, cb) {
 	var cmdline = search_repo_files_cmdline;
 
@@ -154,16 +188,46 @@ function init_repo(search_repo_files_cmdline, cb) {
 	exec(cmdline, exec_search_files);
 }
 
-function init_binaries(cb) {
+function init_binaries() {
 	var cmdline = config.reprepro.search_package_files;
-
-	init_repo(cmdline, cb);
+	return new Promise(function loaded(accept) {
+		init_repo(cmdline, accept);
+	});
 }
 
-function init_sources(cb) {
+function init_sources() {
 	var cmdline = config.reprepro.search_source_files;
 
-	init_repo(cmdline, cb);
+	return new Promise(function loaded(accept) {
+		init_repo(cmdline, accept);
+	});
+}
+
+function load_package_list() {
+	var cmdline = config.reprepro.list_all_packages;
+	var package_list = { dirty: true };
+
+	function load() {
+		return new Promise(function loaded(accept) {
+			if(package_list.dirty) {
+				debug('Lista de paquetes sin actualizar, actualizando');
+				exec(cmdline, function all_packages(execerror, packages) {
+					debug('Cargados %s nombres en la lista de paquetes', packages.split('\n').length);
+					package_list.list = packages;
+					package_list.dirty = false;
+					accept(package_list);
+				});
+			}
+		});
+	}
+
+	fs.watch(config.REPO_POOL_DIR, { recursive: true }, function mark_dirty() {
+		package_list.dirty = true;
+	});
+
+	setInterval(load, config.LOAD_INTERVAL);
+
+	return load();
 }
 
 function parse_packages(text, component) {
@@ -320,8 +384,10 @@ module.exports = {
 	read_file: read_file,
 	repo_get: repo_get,
 	repo_get_distro: repo_get_distro,
+	repo_get_any: repo_get_any,
 	init_binaries: init_binaries,
 	init_sources: init_sources,
+	load_package_list: load_package_list,
 	parse_packages: parse_packages,
 	parse_depends: parse_depends,
 	parse_description: parse_description,

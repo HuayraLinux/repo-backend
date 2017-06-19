@@ -21,4 +21,5 @@ export DH_OPTIONS
 
 override_dh_auto_build:
 	npm install
+	cp config.prod.js config.js
 	@dh_auto_build

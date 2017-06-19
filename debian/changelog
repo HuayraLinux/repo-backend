@@ -1,3 +1,24 @@
+repo-backend (0.2.3~beta) unstable; urgency=medium
+
+  * Modificado el sistema para la recarga del repo
+  * Agregado logging al ejecutar la tarea repo_load_files
+  * 
+
+ -- Ignacio Losiggio <iglosiggio@gmail.com>  Mon, 19 Jun 2017 14:59:27 -0300
+
+repo-backend (0.2.2) unstable; urgency=medium
+
+  * Trabajo inicial en la búsqueda de paquetes
+
+ -- Ignacio Losiggio <iglosiggio@gmail.com>  Wed, 19 Apr 2017 16:11:50 -0300
+
+repo-backend (0.2.1) unstable; urgency=medium
+
+  * Cambios menores en el log, versión para probar que funcione modificar el
+    repositorio
+
+ -- Ignacio Losiggio <iglosiggio@gmail.com>  Tue, 06 Dec 2016 11:46:47 -0300
+
 repo-backend (0.2) unstable; urgency=medium
 
   * Cuando ocurre algún cambio en el repositorio se marca como dirty y se espera
