@@ -1,3 +1,9 @@
+repo-backend (0.2.3~beta2) unstable; urgency=medium
+
+  * Fix for node versions that don't expose mtimeMs in fs.Stats
+
+ -- Ignacio Losiggio <iglosiggio@gmail.com>  Mon, 19 Jun 2017 15:39:05 -0300
+
 repo-backend (0.2.3~beta) unstable; urgency=medium
 
   * Modificado el sistema para la recarga del repo
