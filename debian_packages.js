@@ -12,7 +12,7 @@ var regex_fold = utils.regex_fold;
 var get_field = utils.get_field;
 
 /* Intervalo en el que node hace polling de los archivos, mínimo 5007 y máximo ~5 segundos antes del LOAD_INTERVAL */
-var watchFile_interval = Math.max(LOAD_INTERVAL - 5007, 5007);
+var watchFile_interval = Math.max(config.LOAD_INTERVAL - 5007, 5007);
 
 /* Diccionario para parsear fields específicos */
 var FIELD = {};
@@ -60,6 +60,10 @@ function init_parser(files) {
 
 function repo_load_files(repo) {
 	var read_files_promises;
+
+	debug(repo.dirty
+		? 'Hubo cambios en el repositorio, recargando...'
+		: 'No se registran cambios en el repositorio');
 
 	if(!repo.dirty) {
 		return;
