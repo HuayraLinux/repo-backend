@@ -29,7 +29,8 @@ function init_parser(files) {
 		function mark_dirty(stats_now, last_stats) {
 			var usable_filename = filename.replace(config.REPO_DISTS_DIR, '');
 
-			if(stats_now.mtimeMs != last_stats.mtimeMs) {
+			/* Date.valueOf() returns the javascript timestamp (miliseconds since unix epoch) */
+			if(stats_now.mtime.valueOf() != last_stats.mtime.valueOf()) {
 				debug('Se modificó [%s]', usable_filename);
 
 				repo.dirty = true;
