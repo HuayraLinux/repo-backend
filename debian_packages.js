@@ -206,25 +206,20 @@ function init_sources() {
 
 function load_package_list() {
 	var cmdline = config.reprepro.list_all_packages;
-	var package_list = { dirty: true };
+	var package_list = {
+		dirty: undefined /* Borré el código de dirty checking porque funcionaba mal */
+	};
 
 	function load() {
 		return new Promise(function loaded(accept) {
-			if(package_list.dirty) {
-				debug('Lista de paquetes sin actualizar, actualizando');
-				exec(cmdline, function all_packages(execerror, packages) {
-					debug('Cargados %s nombres en la lista de paquetes', packages.split('\n').length);
-					package_list.list = packages;
-					package_list.dirty = false;
-					accept(package_list);
-				});
-			}
+			debug('Actualizando lista de paquetes...');
+			exec(cmdline, function all_packages(execerror, packages) {
+				debug('Cargados %s nombres en la lista de paquetes', packages.split('\n').length);
+				package_list.list = packages;
+				accept(package_list);
+			});
 		});
 	}
-
-	fs.watch(config.REPO_POOL_DIR, { recursive: true }, function mark_dirty() {
-		package_list.dirty = true;
-	});
 
 	setInterval(load, config.LOAD_INTERVAL);
 
